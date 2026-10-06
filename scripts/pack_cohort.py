@@ -39,19 +39,20 @@ def main():
     print("PHARMACON — AUTOMATED LIGHTWEIGHT COHORT PACKAGER")
     print("=" * 70)
 
-    # Auto-discover writer folders (directories only)
-    candidate_dirs = sorted([
-        d for d in glob.glob(os.path.join(SEARCH_BASE, "*CS*"))
-        if os.path.isdir(d)
-    ])
-    if not candidate_dirs:
-        # Fallback to local dataset directory if present
+    # 1. Prioritize local dataset/ if present, otherwise check phone KDE folder
+    local_dataset = os.path.join(REPO_ROOT, "dataset")
+    if os.path.isdir(local_dataset) and any(os.path.isdir(os.path.join(local_dataset, d)) for d in os.listdir(local_dataset)):
         candidate_dirs = sorted([
-            d for d in glob.glob(os.path.join(REPO_ROOT, "dataset", "*"))
+            os.path.join(local_dataset, d) for d in os.listdir(local_dataset)
+            if os.path.isdir(os.path.join(local_dataset, d))
+        ])
+        print(f"Detected {len(candidate_dirs)} writer folders in workspace: {local_dataset}")
+    else:
+        candidate_dirs = sorted([
+            d for d in glob.glob(os.path.join(SEARCH_BASE, "*CS*"))
             if os.path.isdir(d)
         ])
-    
-    print(f"Found {len(candidate_dirs)} writer source folders in: {SEARCH_BASE}")
+        print(f"Detected {len(candidate_dirs)} writer source folders in: {SEARCH_BASE}")
     
     os.makedirs(os.path.dirname(ZIP_OUTPUT), exist_ok=True)
     if os.path.exists(ZIP_OUTPUT):
@@ -71,9 +72,11 @@ def main():
         zf.write(PDF_PATH, arcname=os.path.basename(PDF_PATH))
 
         # 3. Crop and pack each writer
+        import re
         for idx, w_dir in enumerate(candidate_dirs, 1):
-            w_id = f"W{idx:02d}"
             folder_name = os.path.basename(w_dir)
+            match = re.search(r"[wW](\d+)", folder_name)
+            w_id = f"W{int(match.group(1)):02d}" if match else f"W{idx:02d}"
             mapping = map_writer_sheets(w_dir)
             print(f"[{w_id}] Processing '{folder_name}' ({len(mapping)} sheets)...")
             

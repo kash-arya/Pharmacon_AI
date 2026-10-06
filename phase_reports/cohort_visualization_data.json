@@ -1,0 +1,139 @@
+{
+  "project": "Pharmacon \u2014 Writer-Adaptive Prescription OCR",
+  "updated_at": "2026-10-07T01:05:00+05:30",
+  "description": "Historical empirical trajectory across cohort expansion iterations (N=1 to N=4)",
+  "scaling_trajectory": [
+    {
+      "iteration": 1,
+      "cohort_label": "N=1 (W01)",
+      "writers": [
+        "W01"
+      ],
+      "training_lines": 16,
+      "validation_lines": 4,
+      "test_lines": 8,
+      "epochs_run": 40,
+      "best_epoch": 36,
+      "best_val_loss": 7.5367,
+      "final_train_loss": 6.958,
+      "generic_macro_cer": 1.2898,
+      "adapted_macro_cer": 0.805,
+      "cer_relative_reduction_pct": 37.59,
+      "generic_macro_wer": 1.2818,
+      "adapted_macro_wer": 1.075,
+      "wer_relative_reduction_pct": 16.13,
+      "per_writer_adapted_cer": {
+        "W01": 0.805
+      },
+      "safety_gate": {
+        "total_test_lines": 8,
+        "high_confidence_matches": 0,
+        "ambiguous_requires_confirmation": 0,
+        "abstained_lines": 8,
+        "confirmation_rate_pct": 0.0
+      }
+    },
+    {
+      "iteration": 2,
+      "cohort_label": "N=2 (W01+W02)",
+      "writers": [
+        "W01",
+        "W02"
+      ],
+      "training_lines": 32,
+      "validation_lines": 8,
+      "test_lines": 16,
+      "epochs_run": 40,
+      "best_epoch": 40,
+      "best_val_loss": 7.0383,
+      "final_train_loss": 6.4243,
+      "generic_macro_cer": 1.1432,
+      "adapted_macro_cer": 0.8088,
+      "cer_relative_reduction_pct": 29.26,
+      "generic_macro_wer": 1.2636,
+      "adapted_macro_wer": 1.0215,
+      "wer_relative_reduction_pct": 19.16,
+      "per_writer_adapted_cer": {
+        "W01": 0.7899,
+        "W02": 0.8276
+      },
+      "safety_gate": {
+        "total_test_lines": 16,
+        "high_confidence_matches": 0,
+        "ambiguous_requires_confirmation": 0,
+        "abstained_lines": 16,
+        "confirmation_rate_pct": 0.0
+      }
+    },
+    {
+      "iteration": 3,
+      "cohort_label": "N=3 (W01..W03)",
+      "writers": [
+        "W01",
+        "W02",
+        "W03"
+      ],
+      "training_lines": 48,
+      "validation_lines": 12,
+      "test_lines": 24,
+      "epochs_run": 40,
+      "best_epoch": 40,
+      "best_val_loss": 6.9037,
+      "final_train_loss": 6.1062,
+      "generic_macro_cer": 1.069,
+      "adapted_macro_cer": 0.7988,
+      "cer_relative_reduction_pct": 25.28,
+      "generic_macro_wer": 1.2269,
+      "adapted_macro_wer": 1.017,
+      "wer_relative_reduction_pct": 17.1,
+      "per_writer_adapted_cer": {
+        "W01": 0.7463,
+        "W02": 0.8388,
+        "W03": 0.8113
+      },
+      "safety_gate": {
+        "total_test_lines": 24,
+        "high_confidence_matches": 0,
+        "ambiguous_requires_confirmation": 1,
+        "abstained_lines": 23,
+        "confirmation_rate_pct": 4.17
+      }
+    },
+    {
+      "iteration": 4,
+      "cohort_label": "N=4 (W01..W04)",
+      "writers": [
+        "W01",
+        "W02",
+        "W03",
+        "W04"
+      ],
+      "training_lines": 64,
+      "validation_lines": 16,
+      "test_lines": 32,
+      "epochs_run": 40,
+      "best_epoch": 39,
+      "best_val_loss": 6.5385,
+      "final_train_loss": 5.9338,
+      "generic_macro_cer": 1.0519,
+      "adapted_macro_cer": 0.7413,
+      "cer_relative_reduction_pct": 29.53,
+      "generic_macro_wer": 1.1943,
+      "adapted_macro_wer": 0.9568,
+      "wer_relative_reduction_pct": 19.89,
+      "per_writer_adapted_cer": {
+        "W01": 0.7244,
+        "W02": 0.7027,
+        "W03": 0.7666,
+        "W04": 0.7716
+      },
+      "safety_gate": {
+        "total_test_lines": 32,
+        "high_confidence_matches": 0,
+        "ambiguous_requires_confirmation": 11,
+        "abstained_lines": 21,
+        "confirmation_rate_pct": 34.38
+      }
+    }
+  ]
+}

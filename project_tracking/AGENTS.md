@@ -170,7 +170,7 @@ Full detail in `Pharmacon_Writer_Calibration_Protocol.pdf` (13 pages). Summary b
 | Lab 2: Software Grid | 4 ideas, ranked, 7-section breakdown | Done |
 | Commitment pitch | Revised scope approval | Done (approved) |
 | Planning Presentation | Live website + Planning v1 + PoC evidence | In progress |
-| PoC | Generic vs adapted on sealed lines (Writer W01 + W02 complete) | Passed (Pooled Macro CER 0.8088) |
+| PoC | Generic vs adapted on sealed lines (4 Writers W01–W04 complete) | Passed (Cohort Macro CER 0.7413, WER 0.9568) |
 | SRS Document | IEEE 830 | Phase 2 |
 | System Design (UML) | Use Case, Class, Sequence, Component, DFD | Phase 3 |
 | Working Application | Full codebase + tests | Phase 4 |
@@ -206,6 +206,7 @@ Full detail in `Pharmacon_Writer_Calibration_Protocol.pdf` (13 pages). Summary b
 | 2026-09-15 | End-to-end empirical PoC on Writer W01 sheets | Antigravity AI (Gemini) | Executed complete pipeline: fixed-form crop with pre-cropped fallback, baseline inference, LoRA adaptation (E01-E16) with V01-V04 early stopping, beam search decoding. Proved Macro CER drop 1.2898 → 0.8050 (-48.47% absolute) on sealed T01-T08 lines. | `PHARMACON_POC_REPORT.md` + Colab run logs |
 | 2026-10-01 | Clinical Formulary Matcher & Safety Gate Engine | Antigravity AI (Sonnet 4.6) | Built `pharmacon_ai/formulary.py` with NLEM 2022 (54 drugs), consonant skeleton matching, dosage/form compatibility scoring, and clinical safety gate (`HIGH_CONFIDENCE`, `AMBIGUOUS_REQUIRES_CONFIRMATION`, `ABSTAIN`). Verified with 12 automated unit tests passing 100%. | `tests/test_formulary.py` unit tests |
 | 2026-10-06 | Writer W02 Evaluation & Multi-Writer Cohort Training | Antigravity AI (Sonnet 4.6) | Sliced Writer W02 (Aryan) sheets (32 lines); benchmarked individual adaptation (CER 1.0004 → 0.8578, -14.3%). Verified Formulary Safety Gate (7/8 abstains under degraded OCR, 0 false dispensations). Scaled to Multi-Writer Cohort (W01 + W02, 32 lines pooled); proved Macro CER drop 1.1432 → 0.8088 (-29.26%), WER drop 1.2636 → 1.0215 (-19.16%). W01 dropped to 0.7899 (beating single-writer). Eliminated Wikipedia hallucinations and emerged prescription syntax (`Tab`, `5 mg`, `10 mg`). Built automated dynamic trainer `notebooks/Pharmacon_Cohort_Trainer.ipynb`. | Colab T4 GPU execution logs + `phase_reports/PHARMACON_POC_REPORT.md` |
+| 2026-10-07 | 4-Writer Cohort Scaling & Presentation Visualization Assets | Antigravity AI (Sonnet 4.6) | Integrated W03 (Devansh) & W04 (Jagrit). Engineered local packager `scripts/pack_cohort.py` (slashing zip size 44MB → 2.2MB, -95%). Executed 4-writer pooled training (64 train lines, 32 test lines). Achieved Sub-0.75 CER (0.7413, -29.53%) and Sub-1.00 WER (0.9568, -19.89%). Best Val loss reached 6.5385. Safety gate promoted 11 lines (34.4%) to confirmation and matched first true generic drug (`Paracetamol` on W01 T01). Generated 4 presentation-quality figures in `phase_reports/figures/` from `cohort_visualization_data.json` via `scripts/generate_presentation_charts.py`. | Colab T4 GPU execution logs + `phase_reports/figures/` |
 
 ---
 

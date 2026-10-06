@@ -62,6 +62,7 @@ models/
 # Raw Image Dumps & Temporary Crops (Prevents Repo Bloat)
 # ===================================================================
 sheet_photos/
+dataset/
 crops/
 test_crops/
 *.zip
