@@ -106,21 +106,23 @@ To ensure additional writers did not introduce unlearnable noise before multi-wr
 
 ---
 
-### 8. Phase 3: Multi-Writer Cohort Pooling (W01 + W02 Combined)
+### 8. Phase 3: Multi-Writer Cohort Pooling (W01 + W02 + W03 Cohort)
 
-Following research scholar guidance to scale data across diverse handwriting styles, a unified multi-writer LoRA model was trained by pooling enrollment sets ($16 \times 2 = 32$ lines) and monitored across pooled validation ($4 \times 2 = 8$ lines):
+Following research scholar guidance to scale data across diverse handwriting styles, a unified multi-writer LoRA model was trained by pooling enrollment sets ($16 \times 3 = 48$ lines) and monitored across pooled validation ($4 \times 3 = 12$ lines):
 
 | Writer Split | Generic Macro CER | Adapted Macro CER | $\Delta$ CER | Generic Macro WER | Adapted Macro WER | $\Delta$ WER | Outcome |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Writer W01** | 1.2860 | **0.7899** | -0.4961 | 1.3807 | **0.9886** | -0.3920 | Outperformed Single W01 Model |
-| **Writer W02** | 1.0004 | **0.8276** | -0.1728 | 1.1466 | **1.0544** | -0.0922 | Consistent Multi-Writer Adaptation |
-| **POOLED COHORT** | **1.1432** | **0.8088** | **-0.3345** | **1.2636** | **1.0215** | **-0.2421** | **-29.26% CER / -19.16% WER** |
+| **Writer W01 (Harsh)** | 1.2860 | **0.7463** | -0.5398 | 1.3807 | **0.9875** | -0.3932 | Outperformed Single W01 Model |
+| **Writer W02 (Aryan)** | 1.0004 | **0.8388** | -0.1616 | 1.1466 | **1.0261** | -0.1205 | Consistent Multi-Writer Adaptation |
+| **Writer W03 (Devansh)** | 0.9206 | **0.8113** | -0.1093 | 1.1534 | **1.0375** | -0.1159 | Consistent Multi-Writer Adaptation |
+| **POOLED COHORT (N=3)** | **1.0690** | **0.7988** | **-0.2702** | **1.2269** | **1.0170** | **-0.2098** | **-25.28% CER / -17.10% WER** |
 
 #### Key Empirical Breakthroughs:
-1. **Pooling beats individual adaptation:** The pooled model reduced Writer W01's CER to **0.7899** (breaking below 0.80 for the first time), proving that handwriting variance across writers regularizes and sharpens visual attention.
-2. **Elimination of Wikipedia hallucinations:** The Wikipedia n-gram loops observed in single-writer predictions (*"COVID"*, *"R. Kelly"*, *"forty days"*) completely vanished.
-3. **Emergence of prescription syntax:** The unified model consistently synthesized medical syntax, accurately predicting prefixes (`Tab`) and numerical strengths (`5 mg`, `10 mg`, `100 mg`) across both held-out sets.
-4. **Validation Loss:** Single-writer early stopping triggered at loss 7.53, whereas pooled training converged smoothly down to **7.0383** across 40 epochs without overfitting.
+1. **Sub-0.80 Cohort Barrier Broken:** The pooled cohort average Macro CER broke below 0.80 for the first time, reaching **0.7988** (with Writer W01 dropping to **0.7463**).
+2. **Elimination of Wikipedia Hallucinations:** The out-of-domain Wikipedia n-gram loops observed in single-writer predictions (*"COVID"*, *"R. Kelly"*, *"forty days"*) completely vanished.
+3. **Emergence of Prescription Syntax:** The unified model consistently synthesized medical syntax, with `Tab` prefixes and numerical dosages emerging across held-out sets.
+4. **Validation Loss:** Single-writer early stopping triggered at loss 7.53; the 3-writer pooled training converged smoothly down to **6.9037** across 40 epochs without overfitting.
+5. **Safety Gate Compliance:** While raw OCR is still under refinement (CER ~0.80), the Clinical Safety Gate maintained 100% safety with zero unconfirmed or false drug dispensations. Line `W01 T01` crossed the 0.60 confidence boundary into `AMBIGUOUS_MATCH_REQUIRES_CONFIRMATION` (0.63).
 
 ---
 
