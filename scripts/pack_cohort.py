@@ -41,17 +41,22 @@ def main():
 
     # 1. Prioritize local dataset/ if present, otherwise check phone KDE folder
     local_dataset = os.path.join(REPO_ROOT, "dataset")
+    import re
+    def _wid_num(path):
+        m = re.search(r"[wW](\d+)", os.path.basename(path))
+        return int(m.group(1)) if m else 999
+
     if os.path.isdir(local_dataset) and any(os.path.isdir(os.path.join(local_dataset, d)) for d in os.listdir(local_dataset)):
         candidate_dirs = sorted([
             os.path.join(local_dataset, d) for d in os.listdir(local_dataset)
             if os.path.isdir(os.path.join(local_dataset, d))
-        ])
+        ], key=_wid_num)
         print(f"Detected {len(candidate_dirs)} writer folders in workspace: {local_dataset}")
     else:
         candidate_dirs = sorted([
             d for d in glob.glob(os.path.join(SEARCH_BASE, "*CS*"))
             if os.path.isdir(d)
-        ])
+        ], key=_wid_num)
         print(f"Detected {len(candidate_dirs)} writer source folders in: {SEARCH_BASE}")
     
     os.makedirs(os.path.dirname(ZIP_OUTPUT), exist_ok=True)

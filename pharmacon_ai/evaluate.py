@@ -74,7 +74,7 @@ def wer(reference: str, hypothesis: str) -> float:
 # ---------------------------------------------------------------------------
 
 def run_predictions(model, processor, crops: dict,
-                    device=None) -> dict[str, str]:
+                    device=None, **generate_kwargs) -> dict[str, str]:
     """Run TrOCR (base or PEFT) on a dict of line crops.
 
     Args:
@@ -82,6 +82,7 @@ def run_predictions(model, processor, crops: dict,
         processor: TrOCRProcessor with XLMRobertaTokenizer.
         crops:     {line_id: BGR ndarray OR PIL Image}.
         device:    torch.device (auto-detected if None).
+        **generate_kwargs: Overrides for model.generate (defaults to beam search).
 
     Returns:
         {line_id: predicted_text}
@@ -92,11 +93,20 @@ def run_predictions(model, processor, crops: dict,
     model.to(device)
     model.eval()
 
+    gen_params = {
+        "max_new_tokens": 64,
+        "num_beams": 4,
+        "early_stopping": True,
+        "no_repeat_ngram_size": 3,
+        "repetition_penalty": 1.3,
+    }
+    gen_params.update(generate_kwargs)
+
     predictions = {}
     with torch.no_grad():
         for line_id, image in crops.items():
             pv = processor(images=image, return_tensors="pt").pixel_values.to(device)
-            ids = model.generate(pv, max_new_tokens=64)
+            ids = model.generate(pv, **gen_params)
             text = processor.batch_decode(ids, skip_special_tokens=True)[0].strip()
             predictions[line_id] = text
 

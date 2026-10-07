@@ -134,6 +134,46 @@
         "abstained_lines": 21,
         "confirmation_rate_pct": 34.38
       }
+    },
+    {
+      "iteration": 5,
+      "cohort_label": "N=11 (W01-W11)",
+      "writers": [
+        "W01", "W02", "W03", "W04", "W05", "W06", "W07", "W08", "W09", "W10", "W11"
+      ],
+      "training_lines": 176,
+      "validation_lines": 44,
+      "test_lines": 88,
+      "epochs_run": 21,
+      "best_epoch": 16,
+      "best_val_loss": 6.1697,
+      "final_train_loss": 5.1876,
+      "generic_macro_cer": 1.0057,
+      "adapted_macro_cer": 0.6979,
+      "cer_relative_reduction_pct": 30.60,
+      "generic_macro_wer": 1.4692,
+      "adapted_macro_wer": 0.9312,
+      "wer_relative_reduction_pct": 36.62,
+      "per_writer_adapted_cer": {
+        "W01": 0.7436,
+        "W02": 0.7476,
+        "W03": 0.7546,
+        "W04": 0.6829,
+        "W05": 0.6708,
+        "W06": 0.6809,
+        "W07": 0.6767,
+        "W08": 0.6925,
+        "W09": 0.6555,
+        "W10": 0.6684,
+        "W11": 0.7038
+      },
+      "safety_gate": {
+        "total_test_lines": 88,
+        "high_confidence_matches": 0,
+        "ambiguous_requires_confirmation": 49,
+        "abstained_lines": 39,
+        "confirmation_rate_pct": 55.68
+      }
     }
   ]
 }

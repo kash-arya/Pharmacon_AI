@@ -126,5 +126,10 @@ Then, when 1 writer's sheet arrives: run A vs B vs C on sealed lines and report 
 - [x] Integrate NLEM 2022 Formulary Matcher with clinical safety gate.
 - [x] Evaluate Writer W02 (Aryan) individual sanity check (CER: 1.00 -> 0.85).
 - [x] Pool multi-writer cohort (W01 + W02, 32 lines; Pooled Macro CER: 1.14 -> 0.81, WER: 1.26 -> 1.02).
-- [ ] Scale cohort to 5-10 writers using dynamic trainer `notebooks/Pharmacon_Cohort_Trainer.ipynb`.
-- [ ] Active refinement (WSCMC on R01-R04).
+- [x] Scale cohort to 4 writers (W01-W04, 64 lines; Val Loss: 6.43, Macro CER: 1.04 -> 0.75, WER: 1.41 -> 1.01).
+- [x] Upgrade crop engine to SIFT Feature Homography (100% template alignment, immune to camera angles/margins).
+- [x] Screen and discard abnormal sheets (W12 overflow, W13 double-stacking).
+- [x] Scale cohort to 11 writers (W01-W11, 176 lines; Val Loss: 6.17, Macro CER: 1.00 -> 0.6979, WER: 1.47 -> 0.9312, 55.68% safety gate promotions).
+- [ ] Expand cohort to 15-20 writers.
+- [ ] Run decoder ablation experiment (frozen vs 1-layer unfrozen).
+- [ ] Prepare final presentation visual slide deck.

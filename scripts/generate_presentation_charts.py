@@ -64,29 +64,30 @@ plt.close()
 
 # 3. Clinical Safety Gate Progression
 plt.figure(figsize=(7, 4.5))
-bars = plt.bar(cohorts, confirmed_pct, color=['#6c757d', '#6c757d', '#17a2b8', '#28a745'], edgecolor='#343a40', width=0.55)
+colors = ['#6c757d' if p < 10 else ('#17a2b8' if p < 40 else '#28a745') for p in confirmed_pct]
+bars = plt.bar(cohorts, confirmed_pct, color=colors, edgecolor='#343a40', width=0.55)
 for b in bars:
     h = b.get_height()
     plt.annotate(f"{h:.1f}%", (b.get_x() + b.get_width()/2, h), textcoords="offset points", xytext=(0, 6), ha='center', fontweight='bold', fontsize=10)
 plt.title("Clinical Gate Promotion Rate (Abstain -> Confirmed Match)", fontsize=12, fontweight='bold', pad=12)
 plt.ylabel("Lines Crossing Safety Gate (Threshold >= 0.60)", fontsize=11)
 plt.xlabel("Cohort Expansion", fontsize=11, labelpad=8)
-plt.ylim(0, 45)
+plt.ylim(0, max(confirmed_pct) * 1.25)
 plt.tight_layout()
 plt.savefig(os.path.join(FIG_DIR, "03_clinical_gate_progression.png"), dpi=fig_dpi)
 plt.close()
 
 # 4. Writer W01 Peer-Regularization Curve
-w1_cers = [0.8050, 0.7899, 0.7463, 0.7244]
+w1_cers = [d["per_writer_adapted_cer"].get("W01") for d in data if "W01" in d["per_writer_adapted_cer"]]
 plt.figure(figsize=(7, 4.2))
-plt.plot(cohorts, w1_cers, marker='D', linewidth=2.5, markersize=8, color='#6f42c1', label='Writer W01 Adapted CER')
+plt.plot(cohorts[:len(w1_cers)], w1_cers, marker='D', linewidth=2.5, markersize=8, color='#6f42c1', label='Writer W01 Adapted CER')
 for i, c in enumerate(w1_cers):
     plt.annotate(f"{c:.4f}", (i, c), textcoords="offset points", xytext=(0, 10), ha='center', fontweight='bold', color='#6f42c1')
 plt.title("Peer Regularization Effect: Writer W01 CER vs Cohort Scale", fontsize=12, fontweight='bold', pad=12)
 plt.xlabel("Cohort Scale (Added Peer Handwritings)", fontsize=11, labelpad=8)
 plt.ylabel("Writer W01 CER", fontsize=11)
-plt.ylim(0.68, 0.85)
-plt.axhline(0.8050, color='gray', linestyle='--', label='W01 Solo Model (0.8050)')
+plt.ylim(min(w1_cers) - 0.05, max(w1_cers) + 0.05)
+plt.axhline(w1_cers[0], color='gray', linestyle='--', label=f'W01 Solo Model ({w1_cers[0]:.4f})')
 plt.legend(frameon=True, loc='upper right')
 plt.tight_layout()
 plt.savefig(os.path.join(FIG_DIR, "04_w01_peer_regularization.png"), dpi=fig_dpi)
