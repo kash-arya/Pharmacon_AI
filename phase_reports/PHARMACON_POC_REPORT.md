@@ -178,7 +178,35 @@ Systematic screening of new sheets identified two critical anomalies:
 
 ---
 
-### 11. Final Roadmap & Next Steps
-* **Expand Cohort to 15–20 Writers:** Collect additional clean calibration sheets using the automated SIFT pipeline.
-* **Decoder Ablation Study:** Benchmark frozen decoder vs. 1-layer unfrozen decoder to quantify trade-offs between character recognition accuracy and medical hallucination risk.
-* **Lab Presentation Deck:** Integrate figures from `phase_reports/figures/` into the final commitment pitch slides.
+### 11. Multi-Writer Cohort Scaling to N=22 & Capacity Saturation Analysis
+
+In October 2026, data collection was expanded to 22 clinical writers (704 lines total) to stress-test pooled multi-writer generalization:
+* **N=20 Scaling Result:** Macro CER reached 0.6579, Val loss reached 5.8528.
+* **N=22 Scaling Result:** Macro CER regressed slightly to 0.6691, Val loss rose to 5.9649.
+* **Overfitting Failure Mode:** Expanding LoRA to cross-attention layers in the decoder caused severe overfitting by Epoch 6 (training loss dropped to 1.11 while validation loss exploded to 6.87), proving that unfreezing the decoder induces rapid memorization of medical phrasing rather than generalizable handwriting recognition.
+* **Core Takeaway:** Multi-writer pooling forces a 24K–500K LoRA adapter to average out 22 competing cursive handwriting styles across a statistically starved sample (352 lines). This fundamentally violates the product goal of Pharmacon.
+
+---
+
+### 12. Corrective Re-Alignment: Authoritative 3-Condition Writer Calibration (WSCMC)
+
+In accordance with [`Pharmacon_Writer_Calibration_Protocol.pdf`](file:///home/a87k/Projects/SE_Lab_Project/Pharmacon_Writer_Calibration_Protocol.pdf), the pipeline was refactored away from multi-writer pooling to **personalized single-writer calibration**:
+
+1. **Architecture Rule (Decoder Frozen):** Parameter updates are strictly confined to the visual encoder (layers 10–11 query/value, LoRA rank 8), preventing text memorization.
+2. **Two-Stage Adaptation with WSCMC:**
+   * **Condition A (Generic Baseline):** Zero-shot inference using base `trocr-small-handwritten`.
+   * **Condition B (Fixed Adaptation):** LoRA trained on `E01–E16` only, early-stopped on `V01–V04`.
+   * **Condition C (Adapted + Active - WSCMC):** Levenshtein error analysis on Condition A predictions extracts a character confusion matrix, scoring and prioritizing active refinement lines (`R01–R04`) via weighted coverage (0.45 weak characters, 0.35 confusion pairs, 0.20 medical tokens). Sequential adaptation is warm-started from Condition B weights at `lr = 3e-5`.
+3. **Execution Pipeline:** Unified into [`notebooks/Pharmacon_Writer_Calibration.ipynb`](file:///home/a87k/Projects/SE_Lab_Project/notebooks/Pharmacon_Writer_Calibration.ipynb) with automated NLEM 2022 safety auditing on sealed `T01–T08`.
+
+---
+
+### 13. Current Deliverables & Defense Roadmap
+* [x] SIFT Homography alignment engine (`pharmacon_ai/crop.py`).
+* [x] 22-Writer cohort dataset packaged (704 lines, `colab_packages/pharmacon_cohort_crops.zip`).
+* [x] NLEM 2022 Clinical Formulary Matcher with 0.0% false dispensation rate (`pharmacon_ai/formulary.py`).
+* [x] Writer-Specific Confusion-Matrix Calibration engine (`pharmacon_ai/wscmc.py`).
+* [x] Authoritative 3-Condition Colab execution notebook (`notebooks/Pharmacon_Writer_Calibration.ipynb`).
+* [ ] Execute full 22-writer benchmark in Colab to populate the cross-condition performance matrix (Conditions A vs B vs C).
+* [ ] Assemble final defense slide deck and submission report.
+
