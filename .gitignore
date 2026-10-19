@@ -80,6 +80,9 @@ desktop.ini
 # ===================================================================
 # Personal Study Notes & Internal Docs (Kept locally, ignored by Git)
 # ===================================================================
+**/PHARMACON_CONCEPTUAL_MASTER_STUDY_GUIDE.md
+**/Pharmacon_Commitment_Pitch.pptx
+**/Pharmacon_Writer_Calibration_Protocol.pdf
 docs/PHARMACON_CONCEPTUAL_MASTER_STUDY_GUIDE.md
 docs/Pharmacon_Commitment_Pitch.pptx
 docs/Pharmacon_Writer_Calibration_Protocol.pdf
