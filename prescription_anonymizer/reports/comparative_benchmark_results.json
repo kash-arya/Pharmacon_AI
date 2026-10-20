@@ -1,0 +1,593 @@
+{
+  "cohort_size": 30,
+  "baseline": {
+    "avg_pii_recall": 75.25333333333333,
+    "total_leaks": 40,
+    "avg_clinical_preservation": 66.66666666666667,
+    "tabular_bleed_cases": 0,
+    "unanchored_visual_recall": 0.0,
+    "avg_latency_ms": 24.225585533228394
+  },
+  "pharmacon_multimodal": {
+    "avg_pii_recall": 100.0,
+    "total_leaks": 0,
+    "avg_clinical_preservation": 100.0,
+    "tabular_bleed_cases": 0,
+    "unanchored_visual_recall": 100.0,
+    "avg_latency_ms": 1672.369844466569
+  },
+  "detailed_baseline": [
+    {
+      "id": "case_01_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 85.71,
+      "leaks": 1,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 25.09174599981634
+    },
+    {
+      "id": "case_02_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 85.71,
+      "leaks": 1,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 10.592283997539198
+    },
+    {
+      "id": "case_03_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 85.71,
+      "leaks": 1,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 9.428902998479316
+    },
+    {
+      "id": "case_04_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 8.929709998483304
+    },
+    {
+      "id": "case_05_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 85.71,
+      "leaks": 1,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 8.823141000902979
+    },
+    {
+      "id": "case_06_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 85.71,
+      "leaks": 1,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 9.884536000754451
+    },
+    {
+      "id": "case_07_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 85.71,
+      "leaks": 1,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 8.471882003505016
+    },
+    {
+      "id": "case_08_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 8.337502997164847
+    },
+    {
+      "id": "case_09_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 71.43,
+      "leaks": 2,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 8.34219500029576
+    },
+    {
+      "id": "case_10_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 71.43,
+      "leaks": 2,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 8.810309998807497
+    },
+    {
+      "id": "case_11_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 85.71,
+      "leaks": 1,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 9.0096710009675
+    },
+    {
+      "id": "case_12_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 71.43,
+      "leaks": 2,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 8.81641399973887
+    },
+    {
+      "id": "case_13_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 71.43,
+      "leaks": 2,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 8.308954998938134
+    },
+    {
+      "id": "case_14_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 71.43,
+      "leaks": 2,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 8.954720000474481
+    },
+    {
+      "id": "case_15_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 85.71,
+      "leaks": 1,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 7.841161001124419
+    },
+    {
+      "id": "case_16_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 71.43,
+      "leaks": 2,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 8.026392999454401
+    },
+    {
+      "id": "case_17_scanned_real",
+      "category": "SCANNED_REAL",
+      "recall": 0.0,
+      "leaks": 5,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 7.140465000702534
+    },
+    {
+      "id": "case_18_scanned_real",
+      "category": "SCANNED_REAL",
+      "recall": 60.0,
+      "leaks": 2,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 5.808676000015112
+    },
+    {
+      "id": "case_19_scanned_real",
+      "category": "SCANNED_REAL",
+      "recall": 0.0,
+      "leaks": 4,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 2.470660998369567
+    },
+    {
+      "id": "case_20_scanned_img_png",
+      "category": "SCANNED_IMAGE",
+      "recall": 50.0,
+      "leaks": 2,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 127.8924090001965
+    },
+    {
+      "id": "case_21_stamp_signature",
+      "category": "STAMP_SIGNATURE",
+      "recall": 80.0,
+      "leaks": 1,
+      "preservation": 0.0,
+      "tabular_bleed": false,
+      "latency_ms": 41.2921790011751
+    },
+    {
+      "id": "case_22_stamp_signature",
+      "category": "STAMP_SIGNATURE",
+      "recall": 80.0,
+      "leaks": 1,
+      "preservation": 0.0,
+      "tabular_bleed": false,
+      "latency_ms": 40.71063899755245
+    },
+    {
+      "id": "case_23_stamp_signature",
+      "category": "STAMP_SIGNATURE",
+      "recall": 80.0,
+      "leaks": 1,
+      "preservation": 0.0,
+      "tabular_bleed": false,
+      "latency_ms": 40.948104000563035
+    },
+    {
+      "id": "case_24_stamp_signature",
+      "category": "STAMP_SIGNATURE",
+      "recall": 80.0,
+      "leaks": 1,
+      "preservation": 0.0,
+      "tabular_bleed": false,
+      "latency_ms": 50.78490999949281
+    },
+    {
+      "id": "case_25_stamp_signature",
+      "category": "STAMP_SIGNATURE",
+      "recall": 80.0,
+      "leaks": 1,
+      "preservation": 0.0,
+      "tabular_bleed": false,
+      "latency_ms": 40.51301300205523
+    },
+    {
+      "id": "case_26_skew_rotated",
+      "category": "OPTICAL_STRESS",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 0.0,
+      "tabular_bleed": false,
+      "latency_ms": 41.74869200141984
+    },
+    {
+      "id": "case_27_low_contrast",
+      "category": "OPTICAL_STRESS",
+      "recall": 66.67,
+      "leaks": 1,
+      "preservation": 0.0,
+      "tabular_bleed": false,
+      "latency_ms": 40.480431001924444
+    },
+    {
+      "id": "case_28_gaussian_noise",
+      "category": "OPTICAL_STRESS",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 0.0,
+      "tabular_bleed": false,
+      "latency_ms": 44.31134399783332
+    },
+    {
+      "id": "case_29_phone_shadow",
+      "category": "OPTICAL_STRESS",
+      "recall": 66.67,
+      "leaks": 1,
+      "preservation": 0.0,
+      "tabular_bleed": false,
+      "latency_ms": 40.230681999673834
+    },
+    {
+      "id": "case_30_faded_thermal",
+      "category": "OPTICAL_STRESS",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 0.0,
+      "tabular_bleed": false,
+      "latency_ms": 44.765836999431485
+    }
+  ],
+  "detailed_pharmacon": [
+    {
+      "id": "case_01_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 43.754852002166444,
+      "visual_detected": false
+    },
+    {
+      "id": "case_02_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 27.82048799781478,
+      "visual_detected": false
+    },
+    {
+      "id": "case_03_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 24.115746000461513,
+      "visual_detected": false
+    },
+    {
+      "id": "case_04_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 22.20270699763205,
+      "visual_detected": false
+    },
+    {
+      "id": "case_05_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 22.857210999063682,
+      "visual_detected": false
+    },
+    {
+      "id": "case_06_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 26.248859001498204,
+      "visual_detected": false
+    },
+    {
+      "id": "case_07_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 22.523054998600855,
+      "visual_detected": false
+    },
+    {
+      "id": "case_08_vector_clean",
+      "category": "VECTOR_CLEAN",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 20.570339998812415,
+      "visual_detected": false
+    },
+    {
+      "id": "case_09_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 22.38194099845714,
+      "visual_detected": false
+    },
+    {
+      "id": "case_10_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 21.857654999621445,
+      "visual_detected": false
+    },
+    {
+      "id": "case_11_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 21.543159000430023,
+      "visual_detected": false
+    },
+    {
+      "id": "case_12_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 21.118405999004608,
+      "visual_detected": false
+    },
+    {
+      "id": "case_13_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 21.977589996822644,
+      "visual_detected": false
+    },
+    {
+      "id": "case_14_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 32.45783800230129,
+      "visual_detected": false
+    },
+    {
+      "id": "case_15_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 18.890153001848375,
+      "visual_detected": false
+    },
+    {
+      "id": "case_16_tabular_grid",
+      "category": "TABULAR_GRID",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 18.677176998608047,
+      "visual_detected": false
+    },
+    {
+      "id": "case_17_scanned_real",
+      "category": "SCANNED_REAL",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 4257.154432001698,
+      "visual_detected": false
+    },
+    {
+      "id": "case_18_scanned_real",
+      "category": "SCANNED_REAL",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 4619.2089279975335,
+      "visual_detected": false
+    },
+    {
+      "id": "case_19_scanned_real",
+      "category": "SCANNED_REAL",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 3845.45628900014,
+      "visual_detected": false
+    },
+    {
+      "id": "case_20_scanned_img_png",
+      "category": "SCANNED_IMAGE",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 3137.916444000439,
+      "visual_detected": false
+    },
+    {
+      "id": "case_21_stamp_signature",
+      "category": "STAMP_SIGNATURE",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 3412.9293510013667,
+      "visual_detected": true
+    },
+    {
+      "id": "case_22_stamp_signature",
+      "category": "STAMP_SIGNATURE",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 3406.7173049988924,
+      "visual_detected": true
+    },
+    {
+      "id": "case_23_stamp_signature",
+      "category": "STAMP_SIGNATURE",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 3474.4275939992804,
+      "visual_detected": true
+    },
+    {
+      "id": "case_24_stamp_signature",
+      "category": "STAMP_SIGNATURE",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 3371.289949001948,
+      "visual_detected": true
+    },
+    {
+      "id": "case_25_stamp_signature",
+      "category": "STAMP_SIGNATURE",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 3373.2290920015657,
+      "visual_detected": true
+    },
+    {
+      "id": "case_26_skew_rotated",
+      "category": "OPTICAL_STRESS",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 3090.3353249996144,
+      "visual_detected": false
+    },
+    {
+      "id": "case_27_low_contrast",
+      "category": "OPTICAL_STRESS",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 3399.38150099988,
+      "visual_detected": true
+    },
+    {
+      "id": "case_28_gaussian_noise",
+      "category": "OPTICAL_STRESS",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 3640.2598429995123,
+      "visual_detected": true
+    },
+    {
+      "id": "case_29_phone_shadow",
+      "category": "OPTICAL_STRESS",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 3424.032957002055,
+      "visual_detected": true
+    },
+    {
+      "id": "case_30_faded_thermal",
+      "category": "OPTICAL_STRESS",
+      "recall": 100.0,
+      "leaks": 0,
+      "preservation": 100.0,
+      "tabular_bleed": false,
+      "latency_ms": 3329.7591470000043,
+      "visual_detected": true
+    }
+  ]
+}

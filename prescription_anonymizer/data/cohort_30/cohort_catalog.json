@@ -1,0 +1,612 @@
+[
+  {
+    "id": "case_01_vector_clean",
+    "filename": "case_01_vector_clean.pdf",
+    "category": "VECTOR_CLEAN",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_01_vector_clean.pdf",
+    "ground_truth_pii": [
+      "Ramesh Kumar Verma",
+      "UHID-APL-90412",
+      "+91 98101 23450",
+      "dr.arvind@apollo.com",
+      "Dr. Arvind Swaminathan, MD",
+      "MCI-44102",
+      "10/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Tab. Metformin 500 mg",
+      "Tab. Atorvastatin 20 mg",
+      "Tab. Pantoprazole 40 mg",
+      "Type-2 Diabetes"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_02_vector_clean",
+    "filename": "case_02_vector_clean.pdf",
+    "category": "VECTOR_CLEAN",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_02_vector_clean.pdf",
+    "ground_truth_pii": [
+      "Sunita Devi Sharma",
+      "UHID-FOR-11823",
+      "+91 98202 34561",
+      "priya.v@fortis.org",
+      "Dr. Priya Venkatesh, MBBS, DNB",
+      "DMC-88231",
+      "11/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Tab. Atorvastatin 20 mg",
+      "Tab. Pantoprazole 40 mg",
+      "Tab. Amoxicillin 500 mg",
+      "Hypertension Stage 2"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_03_vector_clean",
+    "filename": "case_03_vector_clean.pdf",
+    "category": "VECTOR_CLEAN",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_03_vector_clean.pdf",
+    "ground_truth_pii": [
+      "Mohammed Farooq",
+      "UHID-MAX-45910",
+      "+91 98303 45672",
+      "sanjay.b@maxhealthcare.com",
+      "Dr. Sanjay K. Banerjee, MD, DM",
+      "KMC-99410",
+      "12/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Tab. Pantoprazole 40 mg",
+      "Tab. Amoxicillin 500 mg",
+      "Tab. Cetirizine 10 mg",
+      "Acute Bronchitis"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_04_vector_clean",
+    "filename": "case_04_vector_clean.pdf",
+    "category": "VECTOR_CLEAN",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_04_vector_clean.pdf",
+    "ground_truth_pii": [
+      "Pooja Chandrasekhar",
+      "UHID-AIM-77312",
+      "+91 98404 56783",
+      "neha.kapoor@aiims.edu",
+      "Dr. Neha Kapoor, MD",
+      "MCI-12094",
+      "13/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Tab. Amoxicillin 500 mg",
+      "Tab. Cetirizine 10 mg",
+      "Syp. Paracetamol 250 mg/5 mL",
+      "Allergic Rhinitis"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_05_vector_clean",
+    "filename": "case_05_vector_clean.pdf",
+    "category": "VECTOR_CLEAN",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_05_vector_clean.pdf",
+    "ground_truth_pii": [
+      "Gurpreet Singh Anand",
+      "UHID-MAN-66291",
+      "+91 98505 67894",
+      "dr.arvind@apollo.com",
+      "Dr. Arvind Swaminathan, MD",
+      "MCI-44102",
+      "14/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Tab. Cetirizine 10 mg",
+      "Syp. Paracetamol 250 mg/5 mL",
+      "Inhaler Budesonide 200 mcg",
+      "Coronary Artery Disease"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_06_vector_clean",
+    "filename": "case_06_vector_clean.pdf",
+    "category": "VECTOR_CLEAN",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_06_vector_clean.pdf",
+    "ground_truth_pii": [
+      "Ananya Sengupta",
+      "UHID-MED-33108",
+      "+91 98606 78905",
+      "priya.v@fortis.org",
+      "Dr. Priya Venkatesh, MBBS, DNB",
+      "DMC-88231",
+      "15/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Syp. Paracetamol 250 mg/5 mL",
+      "Inhaler Budesonide 200 mcg",
+      "Tab. Clopidogrel 75 mg",
+      "Gastroesophageal Reflux"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_07_vector_clean",
+    "filename": "case_07_vector_clean.pdf",
+    "category": "VECTOR_CLEAN",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_07_vector_clean.pdf",
+    "ground_truth_pii": [
+      "Vikramaditya Rathore",
+      "UHID-NAR-88204",
+      "+91 98707 89016",
+      "sanjay.b@maxhealthcare.com",
+      "Dr. Sanjay K. Banerjee, MD, DM",
+      "KMC-99410",
+      "16/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Inhaler Budesonide 200 mcg",
+      "Tab. Clopidogrel 75 mg",
+      "Hyperlipidemia"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_08_vector_clean",
+    "filename": "case_08_vector_clean.pdf",
+    "category": "VECTOR_CLEAN",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_08_vector_clean.pdf",
+    "ground_truth_pii": [
+      "Deepika Sundaram",
+      "UHID-TAT-99411",
+      "+91 98808 90127",
+      "neha.kapoor@aiims.edu",
+      "Dr. Neha Kapoor, MD",
+      "MCI-12094",
+      "17/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Tab. Clopidogrel 75 mg",
+      "Post-op Followup"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_09_tabular_grid",
+    "filename": "case_09_tabular_grid.pdf",
+    "category": "TABULAR_GRID",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_09_tabular_grid.pdf",
+    "ground_truth_pii": [
+      "Ramesh Kumar Verma",
+      "UHID-APL-90412",
+      "+91 98101 23450",
+      "priya.v@fortis.org",
+      "Dr. Priya Venkatesh, MBBS, DNB",
+      "DMC-88231",
+      "12/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Tab. Metformin 500 mg",
+      "Tab. Atorvastatin 20 mg",
+      "Tab. Pantoprazole 40 mg",
+      "Type-2 Diabetes"
+    ],
+    "is_tabular": true
+  },
+  {
+    "id": "case_10_tabular_grid",
+    "filename": "case_10_tabular_grid.pdf",
+    "category": "TABULAR_GRID",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_10_tabular_grid.pdf",
+    "ground_truth_pii": [
+      "Sunita Devi Sharma",
+      "UHID-FOR-11823",
+      "+91 98202 34561",
+      "sanjay.b@maxhealthcare.com",
+      "Dr. Sanjay K. Banerjee, MD, DM",
+      "KMC-99410",
+      "13/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Tab. Atorvastatin 20 mg",
+      "Tab. Pantoprazole 40 mg",
+      "Tab. Amoxicillin 500 mg",
+      "Hypertension Stage 2"
+    ],
+    "is_tabular": true
+  },
+  {
+    "id": "case_11_tabular_grid",
+    "filename": "case_11_tabular_grid.pdf",
+    "category": "TABULAR_GRID",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_11_tabular_grid.pdf",
+    "ground_truth_pii": [
+      "Mohammed Farooq",
+      "UHID-MAX-45910",
+      "+91 98303 45672",
+      "neha.kapoor@aiims.edu",
+      "Dr. Neha Kapoor, MD",
+      "MCI-12094",
+      "14/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Tab. Pantoprazole 40 mg",
+      "Tab. Amoxicillin 500 mg",
+      "Tab. Cetirizine 10 mg",
+      "Acute Bronchitis"
+    ],
+    "is_tabular": true
+  },
+  {
+    "id": "case_12_tabular_grid",
+    "filename": "case_12_tabular_grid.pdf",
+    "category": "TABULAR_GRID",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_12_tabular_grid.pdf",
+    "ground_truth_pii": [
+      "Pooja Chandrasekhar",
+      "UHID-AIM-77312",
+      "+91 98404 56783",
+      "dr.arvind@apollo.com",
+      "Dr. Arvind Swaminathan, MD",
+      "MCI-44102",
+      "15/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Tab. Amoxicillin 500 mg",
+      "Tab. Cetirizine 10 mg",
+      "Syp. Paracetamol 250 mg/5 mL",
+      "Allergic Rhinitis"
+    ],
+    "is_tabular": true
+  },
+  {
+    "id": "case_13_tabular_grid",
+    "filename": "case_13_tabular_grid.pdf",
+    "category": "TABULAR_GRID",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_13_tabular_grid.pdf",
+    "ground_truth_pii": [
+      "Gurpreet Singh Anand",
+      "UHID-MAN-66291",
+      "+91 98505 67894",
+      "priya.v@fortis.org",
+      "Dr. Priya Venkatesh, MBBS, DNB",
+      "DMC-88231",
+      "16/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Tab. Cetirizine 10 mg",
+      "Syp. Paracetamol 250 mg/5 mL",
+      "Inhaler Budesonide 200 mcg",
+      "Coronary Artery Disease"
+    ],
+    "is_tabular": true
+  },
+  {
+    "id": "case_14_tabular_grid",
+    "filename": "case_14_tabular_grid.pdf",
+    "category": "TABULAR_GRID",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_14_tabular_grid.pdf",
+    "ground_truth_pii": [
+      "Ananya Sengupta",
+      "UHID-MED-33108",
+      "+91 98606 78905",
+      "sanjay.b@maxhealthcare.com",
+      "Dr. Sanjay K. Banerjee, MD, DM",
+      "KMC-99410",
+      "17/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Syp. Paracetamol 250 mg/5 mL",
+      "Inhaler Budesonide 200 mcg",
+      "Tab. Clopidogrel 75 mg",
+      "Gastroesophageal Reflux"
+    ],
+    "is_tabular": true
+  },
+  {
+    "id": "case_15_tabular_grid",
+    "filename": "case_15_tabular_grid.pdf",
+    "category": "TABULAR_GRID",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_15_tabular_grid.pdf",
+    "ground_truth_pii": [
+      "Vikramaditya Rathore",
+      "UHID-NAR-88204",
+      "+91 98707 89016",
+      "neha.kapoor@aiims.edu",
+      "Dr. Neha Kapoor, MD",
+      "MCI-12094",
+      "18/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Inhaler Budesonide 200 mcg",
+      "Tab. Clopidogrel 75 mg",
+      "Hyperlipidemia"
+    ],
+    "is_tabular": true
+  },
+  {
+    "id": "case_16_tabular_grid",
+    "filename": "case_16_tabular_grid.pdf",
+    "category": "TABULAR_GRID",
+    "format": "VECTOR_DIGITAL",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_16_tabular_grid.pdf",
+    "ground_truth_pii": [
+      "Deepika Sundaram",
+      "UHID-TAT-99411",
+      "+91 98808 90127",
+      "dr.arvind@apollo.com",
+      "Dr. Arvind Swaminathan, MD",
+      "MCI-44102",
+      "19/10/2026"
+    ],
+    "ground_truth_clinical": [
+      "Tab. Clopidogrel 75 mg",
+      "Post-op Followup"
+    ],
+    "is_tabular": true
+  },
+  {
+    "id": "case_17_scanned_real",
+    "filename": "case_17_scanned_real.pdf",
+    "category": "SCANNED_REAL",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_17_scanned_real.pdf",
+    "ground_truth_pii": [
+      "Dr John Smith",
+      "Maria Sharapova",
+      "9 tennis court",
+      "5/11/2022",
+      "(000)-111-2222"
+    ],
+    "ground_truth_clinical": [
+      "Prednisone",
+      "Lialda"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_18_scanned_real",
+    "filename": "case_18_scanned_real.pdf",
+    "category": "SCANNED_REAL",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_18_scanned_real.pdf",
+    "ground_truth_pii": [
+      "Dr John Smith",
+      "Virat Kohli",
+      "2 cricket blvd",
+      "2/05/2022",
+      "(000)-111-2222"
+    ],
+    "ground_truth_clinical": [
+      "Omeprazole"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_19_scanned_real",
+    "filename": "case_19_scanned_real.pdf",
+    "category": "SCANNED_REAL",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_19_scanned_real.pdf",
+    "ground_truth_pii": [
+      "Kathy Crawford",
+      "May 6 1972",
+      "9264 Ash Dr",
+      "(737) 988-0851"
+    ],
+    "ground_truth_clinical": [
+      "Varicella",
+      "Migraine"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_20_scanned_img_png",
+    "filename": "case_20_scanned_img_png.png",
+    "category": "SCANNED_IMAGE",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_20_scanned_img_png.png",
+    "ground_truth_pii": [
+      "Dr John Smith",
+      "Maria Sharapova",
+      "9 tennis court",
+      "5/11/2022"
+    ],
+    "ground_truth_clinical": [
+      "Prednisone",
+      "Lialda"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_21_stamp_signature",
+    "filename": "case_21_stamp_signature.png",
+    "category": "STAMP_SIGNATURE",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_21_stamp_signature.png",
+    "ground_truth_pii": [
+      "Ramesh Kumar Verma",
+      "UHID-APL-90412",
+      "+91 98101 23450",
+      "Dr. Signed",
+      "CLINIC SEAL"
+    ],
+    "ground_truth_clinical": [
+      "Type-2 Diabetes"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_22_stamp_signature",
+    "filename": "case_22_stamp_signature.png",
+    "category": "STAMP_SIGNATURE",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_22_stamp_signature.png",
+    "ground_truth_pii": [
+      "Sunita Devi Sharma",
+      "UHID-FOR-11823",
+      "+91 98202 34561",
+      "Dr. Signed",
+      "CLINIC SEAL"
+    ],
+    "ground_truth_clinical": [
+      "Hypertension Stage 2"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_23_stamp_signature",
+    "filename": "case_23_stamp_signature.png",
+    "category": "STAMP_SIGNATURE",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_23_stamp_signature.png",
+    "ground_truth_pii": [
+      "Mohammed Farooq",
+      "UHID-MAX-45910",
+      "+91 98303 45672",
+      "Dr. Signed",
+      "CLINIC SEAL"
+    ],
+    "ground_truth_clinical": [
+      "Acute Bronchitis"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_24_stamp_signature",
+    "filename": "case_24_stamp_signature.png",
+    "category": "STAMP_SIGNATURE",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_24_stamp_signature.png",
+    "ground_truth_pii": [
+      "Pooja Chandrasekhar",
+      "UHID-AIM-77312",
+      "+91 98404 56783",
+      "Dr. Signed",
+      "CLINIC SEAL"
+    ],
+    "ground_truth_clinical": [
+      "Allergic Rhinitis"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_25_stamp_signature",
+    "filename": "case_25_stamp_signature.png",
+    "category": "STAMP_SIGNATURE",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_25_stamp_signature.png",
+    "ground_truth_pii": [
+      "Gurpreet Singh Anand",
+      "UHID-MAN-66291",
+      "+91 98505 67894",
+      "Dr. Signed",
+      "CLINIC SEAL"
+    ],
+    "ground_truth_clinical": [
+      "Coronary Artery Disease"
+    ],
+    "is_tabular": false
+  },
+  {
+    "id": "case_26_skew_rotated",
+    "filename": "case_26_skew_rotated.png",
+    "category": "OPTICAL_STRESS",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_26_skew_rotated.png",
+    "ground_truth_pii": [
+      "Ramesh Kumar Verma",
+      "UHID-APL-90412",
+      "+91 98101 23450"
+    ],
+    "ground_truth_clinical": [
+      "Type-2 Diabetes"
+    ],
+    "distortion": "skew_rotated",
+    "is_tabular": false
+  },
+  {
+    "id": "case_27_low_contrast",
+    "filename": "case_27_low_contrast.png",
+    "category": "OPTICAL_STRESS",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_27_low_contrast.png",
+    "ground_truth_pii": [
+      "Sunita Devi Sharma",
+      "UHID-FOR-11823",
+      "+91 98202 34561"
+    ],
+    "ground_truth_clinical": [
+      "Hypertension Stage 2"
+    ],
+    "distortion": "low_contrast",
+    "is_tabular": false
+  },
+  {
+    "id": "case_28_gaussian_noise",
+    "filename": "case_28_gaussian_noise.png",
+    "category": "OPTICAL_STRESS",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_28_gaussian_noise.png",
+    "ground_truth_pii": [
+      "Mohammed Farooq",
+      "UHID-MAX-45910",
+      "+91 98303 45672"
+    ],
+    "ground_truth_clinical": [
+      "Acute Bronchitis"
+    ],
+    "distortion": "gaussian_noise",
+    "is_tabular": false
+  },
+  {
+    "id": "case_29_phone_shadow",
+    "filename": "case_29_phone_shadow.png",
+    "category": "OPTICAL_STRESS",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_29_phone_shadow.png",
+    "ground_truth_pii": [
+      "Pooja Chandrasekhar",
+      "UHID-AIM-77312",
+      "+91 98404 56783"
+    ],
+    "ground_truth_clinical": [
+      "Allergic Rhinitis"
+    ],
+    "distortion": "phone_shadow",
+    "is_tabular": false
+  },
+  {
+    "id": "case_30_faded_thermal",
+    "filename": "case_30_faded_thermal.png",
+    "category": "OPTICAL_STRESS",
+    "format": "SCANNED_RASTER",
+    "path": "/home/a87k/Projects/SE_Lab_Project/prescription_anonymizer/data/cohort_30/case_30_faded_thermal.png",
+    "ground_truth_pii": [
+      "Gurpreet Singh Anand",
+      "UHID-MAN-66291",
+      "+91 98505 67894"
+    ],
+    "ground_truth_clinical": [
+      "Coronary Artery Disease"
+    ],
+    "distortion": "faded_thermal",
+    "is_tabular": false
+  }
+]
