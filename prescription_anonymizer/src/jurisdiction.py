@@ -37,7 +37,7 @@ JURISDICTION_SIGNATURES: Dict[str, List[re.Pattern]] = {
         re.compile(r"\bWohnanschrift\b", re.IGNORECASE),
     ],
     "IN": [
-        re.compile(r"\b(?:UHID|OPD|IPD|ABHA|NMC|MCI|Apollo|SIMSS|Akash\s*Imaging)\b", re.IGNORECASE),
+        re.compile(r"\b(?:UHID|OPD|IPD|ABHA|NMC|MCI|\+91|PIN(?:\s*Code)?)\b", re.IGNORECASE),
         re.compile(r"\b(?:Consultant\s*Physician|Regn?\s*No\.?)\b", re.IGNORECASE),
     ]
 }

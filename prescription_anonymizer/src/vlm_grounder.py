@@ -170,53 +170,99 @@ class MultimodalVisualGrounder:
 
         return targets
 
+    def detect_visual_pii_from_bgr(self, img_bgr: np.ndarray, page_num: int = 1) -> List[RedactionTarget]:
+        """
+        Core zero-keyword visual grounding pipeline operating on a BGR numpy array.
+        Extracts stamps, signatures, and unanchored visual PII while protecting the clinical block.
+        """
+        if img_bgr is None or img_bgr.size == 0:
+            return []
+
+        orig_h, orig_w = img_bgr.shape[:2]
+        max_dim = max(orig_h, orig_w)
+        if max_dim > 1600:
+            scale = 1600.0 / max_dim
+            target_w = int(round(orig_w * scale))
+            target_h = int(round(orig_h * scale))
+            working_img = cv2.resize(img_bgr, (target_w, target_h), interpolation=cv2.INTER_AREA)
+            scale_x = target_w / float(orig_w)
+            scale_y = target_h / float(orig_h)
+        else:
+            scale_x = 1.0
+            scale_y = 1.0
+            working_img = img_bgr
+
+        clinical_ceiling = self.detect_clinical_boundary(working_img)
+        targets: List[RedactionTarget] = []
+
+        # 1. Chromatic stamp and seal detection
+        stamps = self.detect_chromatic_stamps(working_img, page_num=page_num)
+        targets.extend(stamps)
+
+        # 2. Unanchored cursive signature detection in authorization zone
+        signatures = self.detect_signatures_and_marginalia(working_img, page_num=page_num)
+        targets.extend(signatures)
+
+        # 3. Clinical Encroachment Guard: Filter out any visual boxes that land in Rx body
+        footer_zone = int(working_img.shape[0] * 0.75)
+        guarded_targets = []
+        for t in targets:
+            if t.category == "CLINIC_RUBBER_STAMP":
+                if t.bbox.y0 >= clinical_ceiling and t.bbox.y1 <= footer_zone:
+                    # Lies entirely inside clinical prescription body - suppress false positive
+                    continue
+                if t.bbox.y1 > clinical_ceiling and t.bbox.y0 < clinical_ceiling:
+                    # Clamp bottom to clinical ceiling to prevent covering medicines
+                    clamped_bbox = BoundingBox(x0=t.bbox.x0, y0=t.bbox.y0, x1=t.bbox.x1, y1=clinical_ceiling - 4)
+                    guarded_targets.append(RedactionTarget(
+                        page_number=page_num,
+                        category=t.category,
+                        raw_text=t.raw_text,
+                        bbox=clamped_bbox,
+                        confidence=t.confidence,
+                        engine=t.engine
+                    ))
+                    continue
+            guarded_targets.append(t)
+
+        # Rescale detected BoundingBox coordinates back up to input image dimensions (orig_w, orig_h)
+        final_targets = []
+        for t in guarded_targets:
+            final_targets.append(RedactionTarget(
+                page_number=t.page_number,
+                category=t.category,
+                raw_text=t.raw_text,
+                bbox=BoundingBox(
+                    x0=t.bbox.x0 / scale_x,
+                    y0=t.bbox.y0 / scale_y,
+                    x1=t.bbox.x1 / scale_x,
+                    y1=t.bbox.y1 / scale_y
+                ),
+                confidence=t.confidence,
+                engine=t.engine
+            ))
+
+        return final_targets
+
     def detect_visual_pii(self, image_path: str, page_num: int = 1) -> List[RedactionTarget]:
         """
-        Full zero-keyword visual grounding pipeline.
-        Extracts stamps, signatures, and unanchored visual PII while protecting the clinical block.
+        Loads image file and executes visual grounding pipeline (plus optional Florence-2 VLM on GPU).
         """
         img = cv2.imread(image_path)
         if img is None:
             raise FileNotFoundError(f"Could not load image: {image_path}")
 
-        clinical_ceiling = self.detect_clinical_boundary(img)
-        targets: List[RedactionTarget] = []
+        final_targets = self.detect_visual_pii_from_bgr(img, page_num=page_num)
 
-        # 1. Chromatic stamp and seal detection
-        stamps = self.detect_chromatic_stamps(img, page_num=page_num)
-        targets.extend(stamps)
-
-        # 2. Unanchored cursive signature detection in authorization zone
-        signatures = self.detect_signatures_and_marginalia(img, page_num=page_num)
-        targets.extend(signatures)
-
-        # 3. If VLM (Florence-2) mode is enabled on GPU, execute prompt grounding
+        # 4. If VLM (Florence-2) mode is enabled on GPU, execute prompt grounding
         if self.use_vlm and self.vlm_device == "cuda":
             self._init_florence()
             if self._florence_model is not None:
                 # Add VLM grounded bounding boxes
                 vlm_targets = self._ground_with_florence(image_path, page_num=page_num)
-                targets.extend(vlm_targets)
+                final_targets.extend(vlm_targets)
 
-        # 4. Clinical Encroachment Guard: Filter out any visual boxes that land in Rx body
-        guarded_targets = []
-        for t in targets:
-            # If in header zone, ensure it stays above clinical boundary
-            if t.category == "CLINIC_RUBBER_STAMP" and t.bbox.y1 > clinical_ceiling and t.bbox.y0 < clinical_ceiling:
-                # Clamp bottom to clinical ceiling to prevent covering medicines
-                clamped_bbox = BoundingBox(x0=t.bbox.x0, y0=t.bbox.y0, x1=t.bbox.x1, y1=clinical_ceiling - 4)
-                guarded_targets.append(RedactionTarget(
-                    page_number=page_num,
-                    category=t.category,
-                    raw_text=t.raw_text,
-                    bbox=clamped_bbox,
-                    confidence=t.confidence,
-                    engine=t.engine
-                ))
-            else:
-                guarded_targets.append(t)
-
-        return guarded_targets
+        return final_targets
 
     def _ground_with_florence(self, image_path: str, page_num: int = 1) -> List[RedactionTarget]:
         """Runs Florence-2 open-vocabulary grounding on GPU for stamps, signatures, and hospital logos."""

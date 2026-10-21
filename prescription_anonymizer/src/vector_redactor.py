@@ -21,8 +21,10 @@ try:
         ADDRESS_ANCHORS,
         DATE_ANCHORS,
         STATUTORY_ID_PATTERNS,
+        is_whitelisted,
     )
     from prescription_anonymizer.src.jurisdiction import JurisdictionDetector
+    from prescription_anonymizer.src.ner_engine import LocalNEREngine
 except ImportError:
     from src.entities import (
         BoundingBox,
@@ -35,8 +37,10 @@ except ImportError:
         ADDRESS_ANCHORS,
         DATE_ANCHORS,
         STATUTORY_ID_PATTERNS,
+        is_whitelisted,
     )
     from src.jurisdiction import JurisdictionDetector
+    from src.ner_engine import LocalNEREngine
 
 
 
@@ -49,6 +53,7 @@ class VectorPDFRedactor:
         self.expand_box = expand_box
         self.padding_x = padding_x
         self.padding_y = padding_y
+        self.ner_engine = LocalNEREngine()
 
     def find_pii_targets(self, doc: pymupdf.Document) -> List[RedactionTarget]:
         """Scan all pages and return bounding boxes of identified PII entities."""
@@ -162,6 +167,23 @@ class VectorPDFRedactor:
                         confidence=0.99,
                         engine="signature_detector"
                     ))
+
+            # D. Local spaCy NER for unanchored Persons, Locations, and Organizations
+            ner_candidates = self.ner_engine.find_entities(text)
+            for cand in ner_candidates:
+                matched_str = cand["text"]
+                if not is_whitelisted(matched_str) and len(matched_str) >= 3:
+                    rects = page.search_for(matched_str)
+                    for r in rects:
+                        bbox = BoundingBox(x0=r.x0, y0=r.y0, x1=r.x1, y1=r.y1)
+                        targets.append(RedactionTarget(
+                            page_number=page_idx + 1,
+                            category=cand["category"],
+                            raw_text=matched_str,
+                            bbox=bbox,
+                            confidence=0.95,
+                            engine="spacy_ner"
+                        ))
 
         return targets
 

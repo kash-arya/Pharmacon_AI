@@ -2,6 +2,7 @@
 Core Entity Definitions and PII Anchor Lexicons for Medical Prescriptions.
 """
 
+import re
 from typing import List, Optional, Tuple
 from pydantic import BaseModel, Field
 
@@ -230,27 +231,17 @@ STATUTORY_ID_PATTERNS = [
     (r"\b(?:MCI|NMC|KMC|DMC|TMC)[-\s]?\d{4,6}\b", "IDENTIFIER_MCI"),
 ]
 
-HEADER_SURNAMES = [
-    "SHARMA", "SINGHAL", "GOYAL", "DESAI", "KOHLI", "GARG", "SINGH", "CRAWFORD", "SHARAPOVA"
-]
-
-CLINIC_HEADERS = [
-    r"\bAKASH\s*IMAGING(?:\s*&\s*DIAGNOSTICS)?\b",
-    r"\bAKASH\b",
-    r"\bSIMSS\s*HOSPITAL\b",
-    r"\bSIMSS\b",
-    r"\bSinghal\s+Institute(?:\s+of\s+Medical\s+and\s+Surgical\s+Superspecialities)?\b",
-]
-
 ADDRESS_ANCHORS = [
     r"\b(?:Address|Addr|Wohnanschrift|Dirección)\s*[:\-=~+]?\s*[^\n\r]+",
     r"\b(?:Surgery\s+Address|Practice\s+Stamp|Practice\s+Address)\s*[:\-=~+]?\s*[^\n\r]+",
     r"\b(?:SEC|Sector)\s*\d+[\s,]+[A-Za-z]+",
-    r"\b\d+[A-Za-z0-9\-/]?[ \t]+[A-Za-z0-9\-]+(?:[ \t]+[A-Za-z0-9\-]+){0,5}[ \t]+(?:Street|St|Avenue|Ave|Drive|Road|Rd|Boulevard|Blvd|Court|Ct|Lane|Ln|Terrace|Colony|Market)\b",
+    r"\b\d+[A-Za-z0-9\-/]?[ \t]+[A-Za-z0-9\-]+(?:[ \t]+[A-Za-z0-9\-]+){0,5}[ \t]+(?:Street|St|Avenue|Ave|Drive|Dr|Road|Rd|Boulevard|Blvd|Court|Ct|Lane|Ln|Terrace|Colony|Market|Chowk|Way|Square|Sq|Place|Pl)\b",
     r"\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b",
     r"\b(?:NSW|VIC|QLD|WA|SA|TAS|ACT|NT)\s+\d{4}\b",
     r"\b\d{5}\s+[A-ZÄÖÜ][a-zäöüß]+\b",
-    r"\b(?:New\s+York(?:\s+City)?|Jersey\s+City|New\s+Jersey|new\s+Russia|New\s*Delhi|Kurukshetra|Haryana|United\s+States|London|Sydney|Melbourne|Berlin)\b",
+    r"\b\d{5}(?:-\d{4})?\b",
+    r"\b(?:PIN|PIN\s*Code|Postal\s*Code)?\s*[:\-=~+]?\s*(?:110\d{3}|[1-9]\d{2}\s*\d{3})\b",
+    r"\b(?:City|State|Country|District|Town|Location)\s*[:\-=~+]?\s*[A-Za-z\s]+",
 ]
 
 DATE_ANCHORS = [
@@ -261,9 +252,13 @@ DATE_ANCHORS = [
 ]
 
 CLINICAL_WHITELIST_PATTERNS = [
-    # Pharmacology: active ingredients, dosage forms, routes, frequencies
+    # General morphological medical / pharmacology suffixes (covers thousands of FDA/EMA drugs)
+    r"\b[A-Za-z]{3,}(?:cillin|mycin|prazole|sartan|dipine|statin|olol|pril|zole|mab|nib|tide|profen|parin|glitazone|gliptin|floxacin|cycline|zodone|pam|lam|sone|olone|vir|triptan|setron|caine|dronate|mide|zide)\b",
+    # Specific clinical drug substances & reference agents
     r"\b(?:Prednisone|Lialda|Omeprazole|Telmisartan|Amlodipine|Paracetamol|Triptans|Ibuprofen|Metformin|Amoxicillin|Azithromycin|Pantoprazole|Cefixime|Lipitor|Atorvastatin|Lisinopril|Salbutamol|Esomeprazole|Metoprolol|Metoprolol\s+Tartrate|Ramipril|Pantoprazol|Glimepiride|Rosuvastatin)\b",
+    # Dosage units and pharmaceutical forms
     r"\b(?:mg|mcg|micrograms|ml|gm|gram|tablet|tablets|capsule|capsules|syrup|suspension|drops|injection|ointment|gel|cream|patch|inhaler)\b",
+    # Administration instructions and clinical frequencies
     r"\b(?:Refill|Refil|daily|once\s+daily|twice\s+daily|thrice\s+daily|SOS|stat|PRN|meals|breakfast|bedtime|hs|tid|bid|od|qid|three\s+months|for\s+three\s+months|tablets\s+daily|Dispense\s+as\s+Written|DAW)\b",
     r"\b(?:Rx|Rp\.?|Prescription|Verordnungen|Advice|Treatment|ADVICE\s*/\s*TREATMENT|Directions|Instructions|INVESTIGATIONS|General\s+Local/\s*Systemic\s+Examination)\b",
     # Clinical Departments & Hospital Specialties
@@ -276,10 +271,21 @@ CLINICAL_WHITELIST_PATTERNS = [
     r"\b(?:Lifestyle\s+Modification|Dietary\s+Advice|disease\s+process|plan\s+of\s+care)\b",
     # Diagnostic Imaging / Ultrasound Anatomy & Findings
     r"\b(?:ULTRASOUND|WHOLE\s*ABDOMEN|HOLE\s*ABDOMEN|Ultrasound|Abdomen|USG|color\s+doppler|Samsung\s+RS80|transducer|cine\s+scans|elastography)\b",
-    r"\b(?:Liver|Gall\s*bladder|CBD|Pancreas|Kidney|Right\s+kidney|Left\s+kidney|Prostate|Spleen|Urinary\s+bladder|Aorta|IVC|peritoneal\s+cavity|Appendix)\b",
-    r"\b(?:echotexture|echogenecity|dilatation|calculus|calculi|hydronephrosis|focal\s+lesion|space-occupying\s+lesion|free\s+fluid|calyx|Calyx)\b",
-    r"\b(?:normal\s+in\s+size|normal\s+in\s+course|distended|wall\s+thickness|upper\s+limit\s+normal|differentiation\s+is\s+maintained)\b",
-    r"\b(?:lymph\s+node|enlarged|mass|portal\s+vein|peritoneal|parenchyma|cortico-medullary|corticomedullary|renal\s+non\s+obstructive\s+calculi)\b",
+    r"\b(?:Liver|Gall\s*bladder|Gall|Bladder|CBD|Pancreas|Kidney|Right\s+kidney|Left\s+kidney|Prostate|Spleen|Urinary\s+bladder|Aorta|IVC|peritoneal\s+cavity|Appendix|Bile|Biliary|Duct|Ducts|Lumen|Caliber)\b",
+    r"\b(?:echotexture|echogenecity|echogenicity|echogenic|dilatation|calculus|calculi|hydronephrosis|focal\s+lesion|space-occupying\s+lesion|free\s+fluid|calyx|Calyx|calices|pelvis|ureter)\b",
+    r"\b(?:normal\s+in\s+size|normal\s+in\s+course|distended|wall\s+thickness|upper\s+limit\s+normal|differentiation\s+is\s+maintained|normal|norma)\b",
+    r"\b(?:lymph\s+node|enlarged|mass|portal\s+vein|peritoneal|parenchyma|parenchymal|cortical|medullary|cortico-medullary|corticomedullary|renal\s+non\s+obstructive\s+calculi|calculus\s*/\s*mass)\b",
+    r"\b(?:Size|Dimension|Dimensions|Diameter|Volume|Thickness|Measurement|Measurements|IHBR|E/O)\b",
 ]
+
+_COMPILED_WHITELIST = [re.compile(pat, re.IGNORECASE) for pat in CLINICAL_WHITELIST_PATTERNS]
+
+
+def is_whitelisted(text: str) -> bool:
+    """Determines if a candidate text string contains protected clinical pharmacology or findings."""
+    if not text:
+        return False
+    clean = text.strip()
+    return any(rx.search(clean) for rx in _COMPILED_WHITELIST)
 
 

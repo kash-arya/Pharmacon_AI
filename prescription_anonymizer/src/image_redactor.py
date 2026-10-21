@@ -22,24 +22,26 @@ try:
         RedactionTarget,
         KEY_VALUE_ANCHORS,
         CLINICAL_WHITELIST_PATTERNS,
-        HEADER_SURNAMES,
-        CLINIC_HEADERS,
         STATUTORY_ID_PATTERNS,
+        is_whitelisted,
+        _COMPILED_WHITELIST,
     )
     from prescription_anonymizer.src.vlm_grounder import MultimodalVisualGrounder
     from prescription_anonymizer.src.jurisdiction import JurisdictionDetector
+    from prescription_anonymizer.src.ner_engine import LocalNEREngine
 except ImportError:
     from src.entities import (
         BoundingBox,
         RedactionTarget,
         KEY_VALUE_ANCHORS,
         CLINICAL_WHITELIST_PATTERNS,
-        HEADER_SURNAMES,
-        CLINIC_HEADERS,
         STATUTORY_ID_PATTERNS,
+        is_whitelisted,
+        _COMPILED_WHITELIST,
     )
     from src.vlm_grounder import MultimodalVisualGrounder
     from src.jurisdiction import JurisdictionDetector
+    from src.ner_engine import LocalNEREngine
 
 
 def resolve_tessdata_path(custom_dir: Optional[str] = None) -> str:
@@ -97,41 +99,43 @@ class LocalImageRedactor:
         self.dpi = dpi
         self.enable_visual_grounder = enable_visual_grounder
         self.grounder = MultimodalVisualGrounder() if enable_visual_grounder else None
-
-        # Compiled clinical whitelist patterns
-        self.whitelist_regexes = [
-            re.compile(pat, re.IGNORECASE) for pat in CLINICAL_WHITELIST_PATTERNS
-        ]
+        self.ner_engine = LocalNEREngine()
 
     def is_whitelisted(self, text: str) -> bool:
         """Determines if a candidate text string contains protected clinical pharmacology or findings."""
-        if not text:
-            return False
-        clean = text.strip()
-        for rx in self.whitelist_regexes:
-            if rx.search(clean):
-                return True
-        return False
+        return is_whitelisted(text)
 
-    def _detect_qr_and_barcodes(self, page: pymupdf.Page) -> List[Tuple[pymupdf.Rect, str]]:
+    def _detect_qr_and_barcodes(
+        self,
+        page: pymupdf.Page,
+        bgr: Optional[np.ndarray] = None,
+        scale_x: Optional[float] = None,
+        scale_y: Optional[float] = None
+    ) -> List[Tuple[pymupdf.Rect, str]]:
         """
         Detects 2D QR codes and 1D barcodes using OpenCV QRCodeDetector and BarcodeDetector.
         Returns list of (clamped_bounding_box, detected_payload_or_label).
         """
-        pix = page.get_pixmap()
-        arr = np.frombuffer(pix.samples, dtype=np.uint8).reshape((pix.height, pix.width, pix.n))
-        if pix.n == 4:
-            bgr = cv2.cvtColor(arr, cv2.COLOR_RGBA2BGR)
-            gray = cv2.cvtColor(arr, cv2.COLOR_RGBA2GRAY)
-        elif pix.n == 3:
-            bgr = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
-            gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)
+        if bgr is None:
+            pix = page.get_pixmap()
+            arr = np.frombuffer(pix.samples, dtype=np.uint8).reshape((pix.height, pix.width, pix.n))
+            if pix.n == 4:
+                bgr = cv2.cvtColor(arr, cv2.COLOR_RGBA2BGR)
+                gray = cv2.cvtColor(arr, cv2.COLOR_RGBA2GRAY)
+            elif pix.n == 3:
+                bgr = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
+                gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)
+            else:
+                gray = arr
+                bgr = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+            scale_x = page.rect.width / max(1.0, pix.width)
+            scale_y = page.rect.height / max(1.0, pix.height)
         else:
-            gray = arr
-            bgr = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
-
-        scale_x = page.rect.width / pix.width
-        scale_y = page.rect.height / pix.height
+            gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+            if scale_x is None:
+                scale_x = page.rect.width / max(1.0, bgr.shape[1])
+            if scale_y is None:
+                scale_y = page.rect.height / max(1.0, bgr.shape[0])
 
         boxes: List[Tuple[pymupdf.Rect, str]] = []
 
@@ -223,10 +227,12 @@ class LocalImageRedactor:
 
         return boxes
 
-    def _get_enhanced_header_ocr(self, page: pymupdf.Page) -> Tuple[List[Any], pymupdf.Page, pymupdf.TextPage]:
+    def _get_enhanced_header_ocr(self, page: pymupdf.Page) -> Tuple[List[Any], pymupdf.Page, pymupdf.TextPage, pymupdf.Document]:
         """Performs CLAHE adaptive contrast preprocessing on upper region of page (45%) to uncover faint/glare headers."""
         h_ratio = 0.45
-        pix = page.get_pixmap(dpi=self.dpi, clip=pymupdf.Rect(0, 0, page.rect.width, page.rect.height * h_ratio))
+        max_pt = max(page.rect.width, page.rect.height)
+        effective_dpi = 72 if max_pt > 2000 else self.dpi
+        pix = page.get_pixmap(dpi=effective_dpi, clip=pymupdf.Rect(0, 0, page.rect.width, page.rect.height * h_ratio))
         arr = np.frombuffer(pix.samples, dtype=np.uint8).reshape((pix.height, pix.width, pix.n))
         if pix.n == 4:
             gray = cv2.cvtColor(arr, cv2.COLOR_RGBA2GRAY)
@@ -240,11 +246,26 @@ class LocalImageRedactor:
 
         is_success, buf = cv2.imencode('.png', cl_img)
         tmp_doc = pymupdf.open()
+        KEY_VALUE_ANCHORS,
+        CLINICAL_WHITELIST_PATTERNS,
+        KEY_VALUE_ANCHORS,
+        CLINICAL_WHITELIST_PATTERNS,
+        STATUTORY_ID_PATTERNS,
+        is_whitelisted,
+        _COMPILED_WHITELIST,
+        STATUTORY_ID_PATTERNS,
+        is_whitelisted,
+        _COMPILED_WHITELIST,
         p_enh = tmp_doc.new_page(width=page.rect.width, height=page.rect.height * h_ratio)
         p_enh.insert_image(pymupdf.Rect(0, 0, page.rect.width, page.rect.height * h_ratio), stream=buf.tobytes())
-        tp_enh = p_enh.get_textpage_ocr(language="eng", dpi=self.dpi, tessdata=self.tessdata_dir)
+        tp_enh = p_enh.get_textpage_ocr(language="eng", dpi=effective_dpi, tessdata=self.tessdata_dir)
         words_enh = p_enh.get_text("words", textpage=tp_enh)
 
+        KEY_VALUE_ANCHORS,
+        CLINICAL_WHITELIST_PATTERNS,
+        STATUTORY_ID_PATTERNS,
+        is_whitelisted,
+        _COMPILED_WHITELIST,
         return words_enh, p_enh, tp_enh, tmp_doc
 
     def _reconstruct_visual_lines(self, words: List[Tuple]) -> List[Dict[str, Any]]:
@@ -261,7 +282,10 @@ class LocalImageRedactor:
             placed = False
             for line in visual_lines:
                 l_mid = sum((item[0].y0 + item[0].y1) / 2.0 for item in line) / len(line)
-                if abs(mid - l_mid) < max(10.0, h * 0.25):
+                l_h = sum(item[0].height for item in line) / len(line)
+                min_h = min(h, l_h)
+                v_overlap = min(rect.y1, max(item[0].y1 for item in line)) - max(rect.y0, min(item[0].y0 for item in line))
+                if v_overlap > min_h * 0.45 and abs(mid - l_mid) < min_h * 0.35:
                     line.append((rect, txt))
                     placed = True
                     break
@@ -290,9 +314,13 @@ class LocalImageRedactor:
         Scans a single raster page using dynamic multi-column layout parsing,
         regex entity recognition, and strict clinical whitelist protection.
         """
-        tp = page.get_textpage_ocr(language="eng", dpi=self.dpi, tessdata=self.tessdata_dir)
+        max_pt = max(page.rect.width, page.rect.height)
+        effective_dpi = 72 if max_pt > 2000 else self.dpi
+        tp = page.get_textpage_ocr(language="eng", dpi=effective_dpi, tessdata=self.tessdata_dir)
         words = page.get_text("words", textpage=tp)
         full_text = page.get_text(textpage=tp)
+        self._last_extracted_text = full_text
+        self._last_extracted_words = words
 
         # Build list of protected clinical bounding boxes
         whitelisted_rects: List[pymupdf.Rect] = []
@@ -300,12 +328,13 @@ class LocalImageRedactor:
             if self.is_whitelisted(w[4]):
                 whitelisted_rects.append(pymupdf.Rect(w[0], w[1], w[2], w[3]))
 
-        for rx in self.whitelist_regexes:
+        for rx in _COMPILED_WHITELIST:
             for match in rx.finditer(full_text):
                 match_str = match.group(0).strip()
                 if match_str:
                     for r in page.search_for(match_str, textpage=tp):
                         whitelisted_rects.append(r)
+        self._last_whitelisted_rects = whitelisted_rects
 
         targets: List[RedactionTarget] = []
         recorded_rects: List[pymupdf.Rect] = []
@@ -323,11 +352,12 @@ class LocalImageRedactor:
                     continue
                 # If on different lines vertically, bounding box overlap is an OCR box artifact
                 if abs(rect_mid - wr_mid) > max(15.0, min(rect.height, wr.height) * 0.35):
-                    # Clamp rect away from wr so redaction never covers adjacent line's clinical text
+                    # Clamp rect away from wr along inter-line boundary so redaction never covers adjacent line's clinical text
+                    split_y = (rect_mid + wr_mid) / 2.0
                     if rect_mid > wr_mid:
-                        rect.y0 = max(rect.y0, (wr_mid + rect_mid) / 2.0)
+                        rect.y0 = max(rect.y0, split_y)
                     else:
-                        rect.y1 = min(rect.y1, (wr_mid + rect_mid) / 2.0)
+                        rect.y1 = min(rect.y1, split_y)
                     continue
                 if inter.get_area() > 0.15 * min(rect.get_area(), wr.get_area()):
                     return False
@@ -338,11 +368,16 @@ class LocalImageRedactor:
                 return
             if rect.get_area() <= 0:
                 return
-            for r in recorded_rects:
+            for idx, r in enumerate(recorded_rects):
                 inter = rect & r
                 if not inter.is_empty:
-                    min_area = min(rect.get_area(), r.get_area())
-                    if min_area > 0 and inter.get_area() > 0.75 * min_area:
+                    inter_a = inter.get_area()
+                    if inter_a > 0.70 * r.get_area() and rect.get_area() > r.get_area() * 1.3:
+                        merged = r | rect
+                        recorded_rects[idx] = merged
+                        targets[idx].bbox = BoundingBox(x0=merged.x0, y0=merged.y0, x1=merged.x1, y1=merged.y1)
+                        return
+                    if inter_a > 0.75 * min(rect.get_area(), r.get_area()):
                         return
             recorded_rects.append(rect)
             targets.append(RedactionTarget(
@@ -354,8 +389,22 @@ class LocalImageRedactor:
                 engine=engine
             ))
 
+        # Render page pixmap once for visual analysis (barcodes, QR, stamps, signatures)
+        vis_dpi = 72 if max_pt > 2000 else 150
+        pix = page.get_pixmap(dpi=vis_dpi)
+        arr = np.frombuffer(pix.samples, dtype=np.uint8).reshape((pix.height, pix.width, pix.n))
+        if pix.n == 4:
+            page_bgr = cv2.cvtColor(arr, cv2.COLOR_RGBA2BGR)
+        elif pix.n == 3:
+            page_bgr = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
+        else:
+            page_bgr = cv2.cvtColor(arr, cv2.COLOR_GRAY2BGR)
+
+        scale_px_x = page.rect.width / max(1.0, pix.width)
+        scale_px_y = page.rect.height / max(1.0, pix.height)
+
         # 0. Automatic QR Code and Barcode Detection
-        code_boxes = self._detect_qr_and_barcodes(page)
+        code_boxes = self._detect_qr_and_barcodes(page, bgr=page_bgr, scale_x=scale_px_x, scale_y=scale_px_y)
         for c_rect, payload in code_boxes:
             add_target(c_rect, "BARCODE_OR_QR", payload or "BARCODE_OR_QR", engine="opencv_detector")
 
@@ -451,9 +500,38 @@ class LocalImageRedactor:
                 else:
                     end_x = line_rect.x1 + 4
 
-                same_line_words = [w for w in l_words if start_x - 4 <= w[0].x0 <= end_x]
+                # Check for OCR token fusion where anchor and value are joined without whitespace (e.g. 'TypedBy:-/Operator')
+                fused_token = None
+                for w in l_words:
+                    if w[0].x0 <= a_rect.x0 + 8 and w[0].x1 > a_rect.x1 + 6:
+                        fused_rect = pymupdf.Rect(start_x, w[0].y0, min(end_x, w[0].x1), w[0].y1)
+                        fused_val = re.sub(r"^.*?[:\-=~+/|]+", "", w[1]).strip()
+                        clean_fused = re.sub(r"[:\-=~+._\s|]", "", fused_val)
+                        if len(clean_fused) > 1 and not self.is_whitelisted(fused_val):
+                            fused_token = (fused_rect, fused_val)
+                        break
+
+                normal_words = [w for w in l_words if start_x - 4 <= w[0].x0 <= end_x]
+                if fused_token:
+                    candidate_words = [fused_token] + normal_words
+                else:
+                    candidate_words = normal_words
+
+                # Filter by spatial proximity: form field values are adjacent to the label.
+                # Stop if there is a significant gap (> 120 pt) between words or after label.
+                same_line_words = []
+                prev_x = a_rect.x1
+                for sw_rect, sw_txt in candidate_words:
+                    gap = sw_rect.x0 - prev_x
+                    if same_line_words and gap > 120:
+                        break
+                    if not same_line_words and gap > 180:
+                        break
+                    same_line_words.append((sw_rect, sw_txt))
+                    prev_x = sw_rect.x1
+
                 same_line_text = " ".join(w[1] for w in same_line_words)
-                clean_val = re.sub(r"[:\-=~+._\s]", "", same_line_text)
+                clean_val = re.sub(r"[:\-=~+._\s|]", "", same_line_text)
 
                 is_emergency_header = bool(re.search(r"In\s+Cas[ce]\s+of\s+Emergency", anchor["kw"], re.I))
 
@@ -520,12 +598,13 @@ class LocalImageRedactor:
             ("PHONE", r"\b(?:\+?91[\-\s]?)?[6-9]\d{9}\b|\b0\d{2,4}[\-\s]?\d{6,8}\b|\b\(\d{3}\)[\s\-]?[0-9O]{3}[\-\s]?\d{4}\b|\b\d{3}\)[\s\-]?[0-9O]{3}[\-\s]?\d{4}\b"),
             ("DATE", r"\b\d{1,2}[/\-.][0-9]{1,2}[/\-.][0-9]{2,4}\b|\b\d{1,2}[\s\-_](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[\s\-_]\d{2,4}\b|\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4}\b"),
             ("EMAIL", r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
+            ("URL", r"\bhttps?://[^\s/$.?#].[^\s]*\b"),
             ("PATIENT_HONORIFIC", r"\b(?:Mr|Mrs|Ms|Miss|Master|Baby|Shri|Smt)\.?[^\S\r\n]*[A-Z][a-zA-Z]+(?:[^\S\r\n]+[A-Z][a-zA-Z]+)*\b"),
-            ("DOCTOR_NAME", r"\b(?:Dr\.|Dr|Prof\.|Prof)\s*[A-Z][a-zA-Z]+(?:[^\S\r\n]+[A-Z]\.?)?(?:[^\S\r\n]+[A-Z][a-zA-Z]+)*(?:\s*\([A-Za-z\s,.]+\))?\b|\bOr\.\s*[A-Z][A-Za-z]+(?:[^\S\r\n]+[A-Z][A-Za-z]+)*\b|\b(?:Dr\.?|Dr\s+)?PAWAN\s+K\s+GOYAL\b|\bNK\s+GOYAL\b|\bDrJohn\b"),
+            ("DOCTOR_NAME", r"\b(?:Dr\.|Dr|Prof\.|Prof|Or\.)[^\S\r\n]*[A-Z][a-zA-Z]+(?:[^\S\r\n]+[A-Z]\.?)?(?:[^\S\r\n]+[A-Z][a-zA-Z]+)*(?:\s*\([A-Za-z\s,.]+\))?\b|\b(?:Dr|Prof)[A-Z][a-zA-Z]+\b|\b[A-Z][a-zA-Z]+(?:[^\S\r\n]+[A-Z]\.?)?(?:[^\S\r\n]+[A-Z][a-zA-Z]+)*[,\s]+(?:M\.?B\.?B\.?S|M\.?D|M\.?S|D\.?M\.?R\.?D|D\.?N\.?B|F\.?R\.?C\.?R|F\.?R\.?C\.?S)\b"),
             ("DOCTOR_CREDENTIALS", r"\b(?:MBBS|M\.B\.B\.S|MD|M\.D|MS|M\.S|DMRD|D\.M\.R\.D|DNB|D\.N\.B|FRCR|FRCS)\b"),
-            ("ID_TOKEN", r"\bUD-\d+\b|\bOP-\d+\b|\b1024\d{5}\b|\b7115207313\b|\bAPL-2026-\d+\b|\bMCI-\d+\b"),
-            ("ADDRESS_STREET", r"\b\d+\s+[A-Za-z0-9\-]+(?:\s+[A-Za-z0-9\-]+)*\s+(?:Street|St|Avenue|Ave|Drive|Dr|Road|Rd|Boulevard|Blvd|Court|Ct|Lane|Ln|Bollinger)\b|\bSEC(?:TOR)?\s*\d+[\s,]+[A-Za-z]+\b|\bSR\s+Market,\s+Geeta\s+Colony\b"),
-            ("CITY_STATE", r"\b(?:New\s+York(?:\s+City)?|Jersey\s+City|New\s+Jersey|new\s+Russia|New\s*Delhi|Kurukshetra|Haryana|United\s+States)\b"),
+            ("ID_TOKEN", r"\b[A-Z]{2,4}[-/]\d{4,12}(?:[-/]\d+)?\b|\b\d{8,12}\b"),
+            ("ADDRESS_STREET", r"\b\d+\s+[A-Za-z0-9\-]+(?:\s+[A-Za-z0-9\-]+)*\s+(?:Street|St|Avenue|Ave|Drive|Dr|Road|Rd|Boulevard|Blvd|Court|Ct|Lane|Ln|Terrace|Colony|Market|Chowk|Way|Square|Sq|Place|Pl)\b|\bSEC(?:TOR)?\s*\d+[\s,]+[A-Za-z]+\b"),
+            ("CITY_STATE", r"\b(?:City|State|Country|District|Town|Location)\s*[:\-=~+]?\s*[A-Za-z\s]+\b"),
         ]
 
         for cat, reg in standalone_regexes:
@@ -558,10 +637,10 @@ class LocalImageRedactor:
                                         ix1, iy1 = int(sig_rect.x1 * scale_x), int(sig_rect.y1 * scale_y)
                                         roi = p_gray[iy0:iy1, ix0:ix1]
                                         if roi.size > 0:
-                                            thresh = cv2.adaptiveThreshold(roi, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 25, 12)
-                                            ink_pixels = cv2.countNonZero(thresh)
-                                            if ink_pixels > 450 and (ink_pixels / roi.size) > 0.05:
-                                                add_target(sig_rect, "DOCTOR_SIGNATURE", "[HANDWRITTEN_SIGNATURE]", engine="doctor_footer_signature")
+                                             thresh = cv2.adaptiveThreshold(roi, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 25, 12)
+                                             ink_pixels = cv2.countNonZero(thresh)
+                                             if ink_pixels > 450 and (ink_pixels / roi.size) > 0.05:
+                                                 add_target(sig_rect, "DOCTOR_SIGNATURE", "[HANDWRITTEN_SIGNATURE]", engine="doctor_footer_signature")
                             except Exception:
                                 pass
 
@@ -574,21 +653,38 @@ class LocalImageRedactor:
                     for r in rects:
                         add_target(r, cat, match_str, engine="statutory_scanner")
 
-        # Header zone matching (surnames & clinic identifiers in upper region)
-        header_zone_y = page.rect.height * 0.45
-        header_patterns = [
-            ("HEADER_SURNAME", r"\b(?:SHARMA|SINGHAL|GOYAL|DESAI|KOHLI|GARG|SINGH)\b"),
-            ("CLINIC_HEADER", r"\b(?:AKASH\s*IMAGING(?:\s*&\s*DIAGNOSTICS)?|AKASH|SIMSS\s*HOSPITAL|SIMSS|Singhal\s+Institute(?:\s+of\s+Medical\s+and\s+Surgical\s+Superspecialities)?)\b"),
-        ]
+        # Generic Header-Zone Facility & Provider Rule (Top 35% of Document)
+        header_zone_y = page.rect.height * 0.35
+        facility_keywords = re.compile(
+            r"\b(?:Hospital|Clinic|Imaging|Diagnostics?|Institute|Centre|Center|Medical|Superspecialit(?:y|ies)|Laborator(?:y|ies)|Pharmacy|Healthcare)\b",
+            re.IGNORECASE
+        )
+        for line in line_objects:
+            if line["rect"].y1 <= header_zone_y:
+                line_str = line["text"].strip()
+                if self.is_whitelisted(line_str) or len(line_str) < 3:
+                    continue
+                if facility_keywords.search(line_str):
+                    add_target(line["rect"], "CLINIC_FACILITY", line_str, engine="header_facility_rule")
+                elif re.search(r"\b(?:M\.?B\.?B\.?S|M\.?D|M\.?S|D\.?M\.?R\.?D|D\.?N\.?B|F\.?R\.?C\.?R|Regn?\.?|MCI|NMC)\b", line_str, re.IGNORECASE):
+                    add_target(line["rect"], "HEADER_PROVIDER", line_str, engine="header_provider_rule")
 
-        for cat, reg in header_patterns:
-            for match in re.finditer(reg, full_text, re.IGNORECASE):
-                match_str = match.group(0).strip()
-                if not self.is_whitelisted(match_str) and len(match_str) > 2:
-                    rects = page.search_for(match_str, textpage=tp)
-                    for r in rects:
-                        if r.y1 <= header_zone_y:
-                            add_target(r, cat, match_str, engine="header_zone_scanner")
+        # -------------------------------------------------------------------
+        # 2b. Local spaCy NER for unanchored Persons, Locations, and Organizations
+        # -------------------------------------------------------------------
+        ner_candidates = self.ner_engine.find_entities(full_text)
+        for cand in ner_candidates:
+            matched_str = cand["text"]
+            if not self.is_whitelisted(matched_str) and len(matched_str) >= 3:
+                rects = page.search_for(matched_str, textpage=tp)
+                for r in rects:
+                    add_target(r, cand["category"], matched_str, engine="spacy_ner")
+                if not rects and len(matched_str.split()) > 1:
+                    for part in matched_str.split():
+                        if len(part) >= 4 and not self.is_whitelisted(part):
+                            p_rects = page.search_for(part, textpage=tp)
+                            for pr in p_rects:
+                                add_target(pr, cand["category"], part, engine="spacy_ner")
 
         # -------------------------------------------------------------------
         # 3. CLAHE Contrast-Enhanced Header Pass (Faint Top Headers & Glare)
@@ -658,6 +754,18 @@ class LocalImageRedactor:
                     same_line_words = [w for w in l_words_e if start_x - 4 <= w[0].x0 <= end_x]
                     same_line_text = " ".join(w[1] for w in same_line_words)
                     clean_val = re.sub(r"[:\-=~+._\s]", "", same_line_text)
+
+                    if not same_line_words:
+                        for w in l_words_e:
+                            if w[0].x0 <= a_rect.x0 + 8 and w[0].x1 > start_x + 8:
+                                fused_rect = pymupdf.Rect(start_x, w[0].y0, min(end_x, w[0].x1), w[0].y1)
+                                fused_val = re.sub(r"^.*?[:\-=~+/]+", "", w[1]).strip()
+                                clean_fused = re.sub(r"[:\-=~+._\s]", "", fused_val)
+                                if len(clean_fused) > 2 and not self.is_whitelisted(fused_val):
+                                    same_line_words = [(fused_rect, fused_val)]
+                                    same_line_text = fused_val
+                                    clean_val = clean_fused
+                                break
                     if same_line_words and len(clean_val) > 2 and not re.match(r"^(?:oe|—|_|-|~)+$", clean_val, re.I):
                         val_rect = same_line_words[0][0]
                         for sw in same_line_words[1:]:
@@ -673,19 +781,38 @@ class LocalImageRedactor:
                         for r in rects:
                             add_target(r, f"{cat}_ENHANCED", match_str, engine="ocr_contrast_enhanced")
 
-            # 3c. Header patterns on CLAHE header
-            for cat, reg in header_patterns:
-                for match in re.finditer(reg, full_enh, re.IGNORECASE):
-                    match_str = match.group(0).strip()
-                    if not self.is_whitelisted(match_str) and len(match_str) > 2:
-                        rects = p_enh.search_for(match_str, textpage=tp_enh)
-                        for r in rects:
-                            add_target(r, f"{cat}_ENHANCED", match_str, engine="header_zone_clahe")
+            # 3c. Generic Healthcare Facility & Provider Rule on CLAHE header
+            for line in line_objects_enh:
+                if line["rect"].y1 <= header_zone_y:
+                    line_str = line["text"].strip()
+                    if self.is_whitelisted(line_str) or len(line_str) < 3:
+                        continue
+                    if facility_keywords.search(line_str):
+                        add_target(line["rect"], "CLINIC_FACILITY", line_str, engine="header_facility_rule_clahe")
+                    elif re.search(r"\b(?:M\.?B\.?B\.?S|M\.?D|M\.?S|D\.?M\.?R\.?D|D\.?N\.?B|F\.?R\.?C\.?R|Regn?\.?|MCI|NMC)\b", line_str, re.IGNORECASE):
+                        add_target(line["rect"], "HEADER_PROVIDER", line_str, engine="header_provider_rule_clahe")
         except Exception:
             pass
         finally:
             if tmp_doc_enh is not None:
                 tmp_doc_enh.close()
+
+        # -------------------------------------------------------------------
+        # 4. Zero-keyword Visual Grounder (chromatic stamps and handwritten signatures)
+        # -------------------------------------------------------------------
+        if self.enable_visual_grounder and self.grounder is not None:
+            try:
+                visual_targets = self.grounder.detect_visual_pii_from_bgr(page_bgr, page_num=page_num)
+                for vt in visual_targets:
+                    scaled_rect = pymupdf.Rect(
+                        vt.bbox.x0 * scale_px_x,
+                        vt.bbox.y0 * scale_px_y,
+                        vt.bbox.x1 * scale_px_x,
+                        vt.bbox.y1 * scale_px_y
+                    )
+                    add_target(scaled_rect, vt.category, vt.raw_text, engine=vt.engine)
+            except Exception:
+                pass
 
         return targets
 
@@ -725,47 +852,14 @@ class LocalImageRedactor:
             doc = pymupdf.open("pdf", pdf_bytes)
             page = doc[0]
 
-            resolved_jur = JurisdictionDetector.resolve_jurisdiction(page.get_text(), jurisdiction)
-
-            # 1. OCR-based targets
+            # 1. OCR, form parsing, and visual grounder targets
             targets = self.find_pii_targets_for_page(page, 1)
 
-            # 2. Visual Grounder (stamps & signatures) - strictly gated by clinical whitelist & OCR text
-            if self.enable_visual_grounder and self.grounder is not None:
-                try:
-                    visual_targets = self.grounder.detect_visual_pii(input_path, page_num=1)
-                    scale_vx = page.rect.width / max(1.0, orig_w)
-                    scale_vy = page.rect.height / max(1.0, orig_h)
-                    tp = page.get_textpage_ocr(language="eng", dpi=self.dpi, tessdata=self.tessdata_dir)
-                    words = page.get_text("words", textpage=tp)
-                    for vt in visual_targets:
-                        scaled_bbox = BoundingBox(
-                            x0=vt.bbox.x0 * scale_vx,
-                            y0=vt.bbox.y0 * scale_vy,
-                            x1=vt.bbox.x1 * scale_vx,
-                            y1=vt.bbox.y1 * scale_vy
-                        )
-                        vr = pymupdf.Rect(scaled_bbox.x0, scaled_bbox.y0, scaled_bbox.x1, scaled_bbox.y1)
-                        overlap_text = False
-                        for w in words:
-                            wr = pymupdf.Rect(w[0], w[1], w[2], w[3])
-                            if not (vr & wr).is_empty and (vr & wr).get_area() > 0.05 * wr.get_area():
-                                if self.is_whitelisted(w[4]) or len(w[4]) > 2:
-                                    overlap_text = True
-                                    break
-                        if not overlap_text and not self.is_whitelisted(vt.raw_text):
-                            scaled_vt = RedactionTarget(
-                                page_number=vt.page_number,
-                                category=vt.category,
-                                raw_text=vt.raw_text,
-                                bbox=scaled_bbox,
-                                confidence=vt.confidence,
-                                engine=vt.engine
-                            )
-                            targets.append(scaled_vt)
-                except Exception:
-                    pass
+            # Resolve jurisdiction using actual extracted OCR text (fixes empty string bug)
+            ocr_text = getattr(self, "_last_extracted_text", "") or page.get_text()
+            resolved_jur = JurisdictionDetector.resolve_jurisdiction(ocr_text, jurisdiction)
 
+            whitelisted_rects = getattr(self, "_last_whitelisted_rects", [])
             for t in targets:
                 pad_x = max(3.0, t.bbox.width * self.padding_ratio)
                 pad_y = max(2.0, t.bbox.height * self.padding_ratio)
@@ -775,9 +869,23 @@ class LocalImageRedactor:
                     min(page.rect.width, t.bbox.x1 + pad_x),
                     min(page.rect.height, t.bbox.y1 + pad_y)
                 )
-                page.add_redact_annot(rect, fill=(0, 0, 0))
+                for wr in whitelisted_rects:
+                    inter = rect & wr
+                    if not inter.is_empty:
+                        rect_mid = (rect.y0 + rect.y1) / 2.0
+                        wr_mid = (wr.y0 + wr.y1) / 2.0
+                        split_y = (rect_mid + wr_mid) / 2.0
+                        if rect_mid > wr_mid:
+                            rect.y0 = max(rect.y0, split_y)
+                        else:
+                            rect.y1 = min(rect.y1, split_y)
+                if rect.is_valid and rect.get_area() > 0:
+                    page.add_redact_annot(rect, fill=(0, 0, 0))
 
             page.apply_redactions()
+
+            scale_back_x = orig_w / page.rect.width
+            scale_back_y = orig_h / page.rect.height
 
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             if out_ext_lower in self.IMAGE_EXTENSIONS:
@@ -790,25 +898,43 @@ class LocalImageRedactor:
 
             doc.close()
 
+            reported_targets = []
+            for t in targets:
+                reported_targets.append(RedactionTarget(
+                    page_number=t.page_number,
+                    category=t.category,
+                    raw_text=t.raw_text,
+                    bbox=BoundingBox(
+                        x0=t.bbox.x0 * scale_back_x,
+                        y0=t.bbox.y0 * scale_back_y,
+                        x1=t.bbox.x1 * scale_back_x,
+                        y1=t.bbox.y1 * scale_back_y
+                    ),
+                    confidence=t.confidence,
+                    engine=t.engine
+                ))
+
             return {
                 "input_file": input_path,
                 "output_file": output_path,
                 "jurisdiction": resolved_jur,
                 "format_type": "SCANNED_RASTER_IMAGE",
-                "total_entities_redacted": len(targets),
-                "redacted_targets": [t.model_dump() for t in targets]
+                "total_entities_redacted": len(reported_targets),
+                "redacted_targets": [t.model_dump() for t in reported_targets]
             }
 
         # Handle PDF Input
         doc = pymupdf.open(input_path)
-        full_pdf_text = " ".join(p.get_text() for p in doc)
-        resolved_jur = JurisdictionDetector.resolve_jurisdiction(full_pdf_text, jurisdiction)
         all_targets: List[RedactionTarget] = []
+        collected_ocr_text: List[str] = []
 
         for p_idx, page in enumerate(doc):
             targets = self.find_pii_targets_for_page(page, p_idx + 1)
             all_targets.extend(targets)
+            if hasattr(self, "_last_extracted_text") and self._last_extracted_text:
+                collected_ocr_text.append(self._last_extracted_text)
 
+            whitelisted_rects = getattr(self, "_last_whitelisted_rects", [])
             for t in targets:
                 pad_x = max(2.0, t.bbox.width * self.padding_ratio)
                 pad_y = max(1.5, t.bbox.height * self.padding_ratio)
@@ -818,9 +944,23 @@ class LocalImageRedactor:
                     min(page.rect.width, t.bbox.x1 + pad_x),
                     min(page.rect.height, t.bbox.y1 + pad_y)
                 )
-                page.add_redact_annot(rect, fill=(0, 0, 0))
+                for wr in whitelisted_rects:
+                    inter = rect & wr
+                    if not inter.is_empty:
+                        rect_mid = (rect.y0 + rect.y1) / 2.0
+                        wr_mid = (wr.y0 + wr.y1) / 2.0
+                        split_y = (rect_mid + wr_mid) / 2.0
+                        if rect_mid > wr_mid:
+                            rect.y0 = max(rect.y0, split_y)
+                        else:
+                            rect.y1 = min(rect.y1, split_y)
+                if rect.is_valid and rect.get_area() > 0:
+                    page.add_redact_annot(rect, fill=(0, 0, 0))
 
             page.apply_redactions()
+
+        full_doc_text = " ".join(collected_ocr_text) if collected_ocr_text else " ".join(p.get_text() for p in doc)
+        resolved_jur = JurisdictionDetector.resolve_jurisdiction(full_doc_text, jurisdiction)
 
         # Wipe metadata to eliminate digital trace leakage
         doc.set_metadata({
