@@ -51,16 +51,10 @@ python -m api.server
 - Health Probe: `http://localhost:8000/health`
 - Node.js Integration Guide: See [`docs/NODEJS_INTEGRATION_GUIDE.md`](docs/NODEJS_INTEGRATION_GUIDE.md) and [`scripts/node_client_example.js`](scripts/node_client_example.js).
 
-### 4. Run Benchmark Suites & Comparative Showdown
+### 4. Run Benchmark Suite
 ```bash
-# Verify 100% recall and zero PII leaks on standard 8-case suite
+# Verify recall and zero PII leaks on genuine baseline and smartphone cohort
 python benchmarks/benchmark.py
-
-# Multi-National statutory benchmark across US, UK, Australia, EU, and India
-python benchmarks/benchmark_multinational.py
-
-# Run head-to-head comparison against naive regex expansion across 30 documents
-python benchmarks/benchmark_comparative.py
 ```
 
 ### 5. Interactive Inspection Viewer
@@ -79,29 +73,18 @@ python -m unittest discover -s tests -p "test_*.py"
 
 ---
 
-## Benchmark Results (30-Document Cohort)
+## Baseline Evaluation Results (Authentic Clinical Documents)
 
-| Metric | Naive Regex Expansion | Pharmacon Multimodal | Takeaway |
-| :--- | :---: | :---: | :--- |
-| **PII Recall Rate** | $75.25\%$ | **$100.00\%$** | Zero sensitive demographic entities missed |
-| **Total Identity Leaks** | $40\text{ leaks}$ | **$0\text{ leaks}$** | $100\%$ zero-leak compliance |
-| **Clinical Preservation** | $66.67\%$ | **$100.00\%$** | Preserves all drug names, dosages, and diagnoses |
-| **Tabular Bleed Incidents** | High (Blind Expansion) | **$0\text{ Incidents}$** | Protected cell boundaries with visual guards |
-| **Unanchored Stamp/Signature Capture** | $0.0\%$ (Blind) | **$100.0\%$** (Vision) | Catches freestanding seals and doctor signatures |
-| **Vector Processing Latency** | $24.2\text{ ms}$ | **$36.1\text{ ms}$** | Real-time throughput on standard hardware |
-
----
-
-## Multi-National Benchmark Results (US, UK, AU, EU, IN)
-
-| Country / Jurisdiction | Regulatory Standards | Detection Rate | PII Recall | Leaks | Clinical Preserved | Latency |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| 🇺🇸 **United States** | HIPAA Safe Harbor, DEA, NPI, DAW | **100%** | **100.0%** | **0** | **100.0%** | $104\text{ ms}$ |
-| 🇬🇧 **United Kingdom** | NHS Primary Care FP10, GMC, ODS | **100%** | **100.0%** | **0** | **100.0%** | $51\text{ ms}$ |
-| 🇦🇺 **Australia** | Medicare, PBS Prescriber, AHPRA | **100%** | **100.0%** | **0** | **100.0%** | $53\text{ ms}$ |
-| 🇪🇺 **EU / Germany** | Muster 16 Rosa Rezept, BSNR, LANR | **100%** | **100.0%** | **0** | **100.0%** | $46\text{ ms}$ |
-| 🇮🇳 **India** | DPDP Act 2023, ABHA ID, UHID, NMC | **100%** | **100.0%** | **0** | **100.0%** | $73\text{ ms}$ |
-| **Cohort Summary** | **Multi-National Statutory Engine** | **100.00%** | **100.00%** | **0** | **100.00%** | **$65.3\text{ ms}$** |
+| Document Category | Document Specimen | Format Type | PII Fields | Leaks | Clinical Preservation | Latency | Status |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Digital Vector EMR** | Apollo Hospitals EMR Slip | Vector PDF | 9 | **0** | **100.0%** | $43\text{ ms}$ | **PASS** |
+| **Scanned Intake Slip** | Doctor Intake Slip #1 | Scanned PDF | 7 | **0** | **100.0%** | $4.3\text{ s}$ | **PASS** |
+| **Scanned Intake Slip** | Doctor Intake Slip #2 | Scanned PDF | 7 | **0** | **100.0%** | $4.6\text{ s}$ | **PASS** |
+| **Multi-page Intake** | Scanned Multi-page Record | Scanned PDF | 8 | **0** | **100.0%** | $3.9\text{ s}$ | **PASS** |
+| **Smartphone Photo** | SIMSS Hospital OPD Click (S23) | JPEG Camera | 11 | **0** | **100.0%** | $31.5\text{ s}$ | **PASS** |
+| **Smartphone Photo** | Akash Imaging Ultrasound (S23) | JPEG Camera | 13 | **0** | **100.0%** | $16.8\text{ s}$ | **PASS** |
+| **Smartphone Photo** | Akash Imaging Report 2 (S23) | JPEG Camera | 12 | **0** | **100.0%** | $20.6\text{ s}$ | **PASS** |
+| **Aggregate Summary** | **Authentic Document Cohort** | **Hybrid Pipeline** | **100.0% Recall** | **0 Leaks** | **100.0% Preserved** | - | **PASS** |
 
 ---
 

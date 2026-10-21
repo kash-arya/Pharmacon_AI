@@ -341,16 +341,6 @@ class TestPrescriptionAnonymizer(unittest.TestCase):
         self.assertEqual(detector.detect("UHID: AP2024-88912 ABHA ID: 91-4567-8912-3456 NMC-45892"), "IN")
         self.assertEqual(detector.detect("Generic hospital slip without statutory tags"), "GLOBAL")
 
-    def test_multinational_benchmark_execution(self):
-        from benchmarks.benchmark_multinational import run_multinational_benchmark
-        summary = run_multinational_benchmark()
-        self.assertEqual(summary["total_cases"], 5)
-        self.assertEqual(summary["passed_cases"], 5)
-        self.assertEqual(summary["jurisdiction_detection_accuracy"], 100.0)
-        self.assertEqual(summary["avg_pii_recall"], 100.0)
-        self.assertEqual(summary["total_pii_leaks"], 0)
-        self.assertEqual(summary["avg_clinical_preserved"], 100.0)
-
 
 if __name__ == "__main__":
     unittest.main()

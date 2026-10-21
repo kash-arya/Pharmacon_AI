@@ -171,21 +171,53 @@ class LocalImageRedactor:
         # 2. OpenCV BarcodeDetector
         try:
             bd = cv2.barcode.BarcodeDetector()
-            ok_b, decoded_info_b, _, points_b = bd.detectAndDecode(gray)
+            detected_candidates = []
+
+            # Pass 1: Full image
+            ok_b, points_b = bd.detectMulti(gray)
+            if not ok_b or points_b is None or len(points_b) == 0:
+                ok_b, points_b = bd.detect(gray)
             if ok_b and points_b is not None and len(points_b) > 0:
-                for b_idx, pts in enumerate(points_b):
-                    pts = pts.reshape(-1, 2)
-                    pad = 10.0
-                    x0 = max(0.0, float(np.min(pts[:, 0])) * scale_x - pad)
-                    y0 = max(0.0, float(np.min(pts[:, 1])) * scale_y - pad)
-                    x1 = min(page.rect.width, float(np.max(pts[:, 0])) * scale_x + pad)
-                    y1 = min(page.rect.height, float(np.max(pts[:, 1])) * scale_y + pad)
-                    bw = x1 - x0
-                    bh = y1 - y0
-                    # Barcode plausibility: must not exceed 22% of page height or 12% of total page area
-                    if 20 < bw < page.rect.width * 0.95 and 10 < bh < page.rect.height * 0.22 and (bw * bh) < (page.rect.width * page.rect.height * 0.12):
-                        info_b = decoded_info_b[b_idx] if b_idx < len(decoded_info_b) and decoded_info_b[b_idx] else "BARCODE"
-                        boxes.append((pymupdf.Rect(x0, y0, x1, y1), info_b))
+                pts_list = points_b if points_b.ndim == 3 else [points_b]
+                for pts in pts_list:
+                    detected_candidates.append((pts.reshape(-1, 2), 0.0, 0.0))
+
+            # Pass 2: Overlapping horizontal sliding window across 100% of the page.
+            # Prevents downsampling loss on high-res images (e.g. 30MP phone scans) and eliminates blind spots.
+            h_gray = gray.shape[0]
+            tile_h = max(200, int(h_gray * 0.30))
+            step_h = max(100, int(h_gray * 0.20))
+            for y_start in range(0, h_gray, step_h):
+                y_end = min(h_gray, y_start + tile_h)
+                tile = gray[y_start:y_end, :]
+                ok_t, pts_t = bd.detectMulti(tile)
+                if ok_t and pts_t is not None and len(pts_t) > 0:
+                    pts_list_t = pts_t if pts_t.ndim == 3 else [pts_t]
+                    for pts in pts_list_t:
+                        detected_candidates.append((pts.reshape(-1, 2), 0.0, float(y_start)))
+
+            for pts, off_x, off_y in detected_candidates:
+                pad = 10.0
+                x0 = max(0.0, float(np.min(pts[:, 0]) + off_x) * scale_x - pad)
+                y0 = max(0.0, float(np.min(pts[:, 1]) + off_y) * scale_y - pad)
+                x1 = min(page.rect.width, float(np.max(pts[:, 0]) + off_x) * scale_x + pad)
+                y1 = min(page.rect.height, float(np.max(pts[:, 1]) + off_y) * scale_y + pad)
+                bw = x1 - x0
+                bh = y1 - y0
+                # Barcode plausibility: must not exceed 22% of page height or 12% of total page area
+                if 20 < bw < page.rect.width * 0.95 and 10 < bh < page.rect.height * 0.22 and (bw * bh) < (page.rect.width * page.rect.height * 0.12):
+                    rect = pymupdf.Rect(x0, y0, x1, y1)
+                    is_dup = False
+                    for i, (existing_rect, label) in enumerate(boxes):
+                        if label == "BARCODE":
+                            inter = (rect & existing_rect).get_area()
+                            union = rect.get_area() + existing_rect.get_area() - inter
+                            if union > 0 and (inter / union > 0.4 or inter / min(rect.get_area(), existing_rect.get_area()) > 0.6):
+                                boxes[i] = (rect | existing_rect, label)
+                                is_dup = True
+                                break
+                    if not is_dup:
+                        boxes.append((rect, "BARCODE"))
         except Exception:
             pass
 
@@ -503,6 +535,35 @@ class LocalImageRedactor:
                     rects = page.search_for(match_str, textpage=tp)
                     for r in rects:
                         add_target(r, cat, match_str, engine="regex_scanner")
+                        # If a doctor name is in the footer authorization area, check for a handwritten signature above it
+                        if cat == "DOCTOR_NAME" and r.y0 > page.rect.height * 0.75:
+                            try:
+                                bottom_y = r.y0 - 10.0
+                                top_y = max(page.rect.height * 0.70, r.y0 - 110.0)
+                                if bottom_y - top_y > 30.0:
+                                    sig_rect = pymupdf.Rect(r.x0 - 20, top_y, r.x1 + 60, bottom_y)
+                                    # Deduplicate with existing signature boxes
+                                    already_detected = any(
+                                        t.category == "DOCTOR_SIGNATURE" and
+                                        not (sig_rect & pymupdf.Rect(t.bbox.x0, t.bbox.y0, t.bbox.x1, t.bbox.y1)).is_empty
+                                        for t in targets
+                                    )
+                                    if not already_detected:
+                                        p_pix = page.get_pixmap()
+                                        p_arr = np.frombuffer(p_pix.samples, dtype=np.uint8).reshape((p_pix.height, p_pix.width, p_pix.n))
+                                        p_gray = cv2.cvtColor(p_arr, cv2.COLOR_RGBA2GRAY) if p_pix.n == 4 else (cv2.cvtColor(p_arr, cv2.COLOR_RGB2GRAY) if p_pix.n == 3 else p_arr)
+                                        scale_x = p_pix.width / page.rect.width
+                                        scale_y = p_pix.height / page.rect.height
+                                        ix0, iy0 = int(sig_rect.x0 * scale_x), int(sig_rect.y0 * scale_y)
+                                        ix1, iy1 = int(sig_rect.x1 * scale_x), int(sig_rect.y1 * scale_y)
+                                        roi = p_gray[iy0:iy1, ix0:ix1]
+                                        if roi.size > 0:
+                                            thresh = cv2.adaptiveThreshold(roi, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 25, 12)
+                                            ink_pixels = cv2.countNonZero(thresh)
+                                            if ink_pixels > 450 and (ink_pixels / roi.size) > 0.05:
+                                                add_target(sig_rect, "DOCTOR_SIGNATURE", "[HANDWRITTEN_SIGNATURE]", engine="doctor_footer_signature")
+                            except Exception:
+                                pass
 
         # Statutory National Identifiers (US, UK, AU, EU, IN)
         for reg, cat in STATUTORY_ID_PATTERNS:
