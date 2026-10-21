@@ -9,8 +9,15 @@
 
 - **Hybrid Processing Pipeline:** Native vector redaction for digital EMR exports (runs in under 50ms) paired with local Tesseract OCR + CLAHE preprocessing for scanned papers and camera clicks.
 - **Visual Stamp & Signature Grounding:** Catches colored clinic rubber stamps and freeform doctor signatures without needing explicit text anchors like `"Sign:"` or `"Dr:"`.
+- **Multi-National Regulatory Profiles:** Automated jurisdiction detection and statutory identifier sanitization across 5 global legal frameworks:
+  - 🇺🇸 **United States:** HIPAA Safe Harbor, DEA registration numbers, 10-digit NPIs, state licenses.
+  - 🇬🇧 **United Kingdom:** NHS England FP10 standard, 10-digit NHS numbers (3-3-4 spaced), GMC registrations.
+  - 🇦🇺 **Australia:** 10-digit Medicare numbers, PBS prescriber numbers, AHPRA practitioner IDs.
+  - 🇪🇺 **EU / Germany:** GDPR Article 9, statutory health insurance IDs (`Versicherten-Nr`), `BSNR` practice numbers, and `LANR` doctor IDs.
+  - 🇮🇳 **India:** DPDP Act 2023, 14-digit ABHA IDs, hospital UHID/OPD barcodes, and NMC/MCI doctor registrations.
 - **Clinical Anti-Encroachment Guard:** Stops bounding boxes from bleeding into adjacent table cells so prescribed drugs, dosages, and diagnostic findings remain intact.
 - **Byte-Level PDF Sterilization:** Strips underlying text streams, clears PDF metadata, and overwrites pixels completely ($\sigma^2 = 0.0000$), blocking adversarial contrast or high-pass edge attacks.
+- **REST Microservice & Node.js Integration:** Production-ready FastAPI server with interactive Swagger UI (`/docs`) and ready-to-paste Node.js client helpers for web applications.
 - **Self-Contained Inspection Viewer:** Generates a lightweight, single-file HTML viewer with split-slider overlays to review redacted boundaries side-by-side.
 
 ---
@@ -24,23 +31,39 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Anonymize a File
-Works on digital vector PDFs, scanned PDFs, and raw smartphone photos (`.jpg`, `.png`):
+### 2. Anonymize a File or Directory (CLI)
+Works on digital vector PDFs, scanned PDFs, raw smartphone photos (`.jpg`, `.png`), or entire folders:
 ```bash
+# Single file mode
 python anonymize.py --input data/samples/sample_digital_vector_prescription.pdf
-```
-Outputs `sample_digital_vector_prescription_anonymized.pdf` in the same directory.
 
-### 3. Run Benchmark Suite & Comparative Showdown
+# Parallel multi-core batch mode (defaults to max available CPU cores)
+python anonymize.py --input data/samples/ --output /tmp/sanitized_prescriptions/ --workers 8
+```
+
+### 3. Launch REST Microservice & Web Interface
 ```bash
-# Verify 100% recall and zero PII leaks on our 8-case suite
+# Starts high-performance server on port 8000
+python -m api.server
+```
+- Interactive Web App (Drag & Drop + Live Split Slider): Open `http://localhost:8000/`
+- Interactive Swagger UI: Open `http://localhost:8000/docs` in your browser.
+- Health Probe: `http://localhost:8000/health`
+- Node.js Integration Guide: See [`docs/NODEJS_INTEGRATION_GUIDE.md`](docs/NODEJS_INTEGRATION_GUIDE.md) and [`scripts/node_client_example.js`](scripts/node_client_example.js).
+
+### 4. Run Benchmark Suites & Comparative Showdown
+```bash
+# Verify 100% recall and zero PII leaks on standard 8-case suite
 python benchmarks/benchmark.py
+
+# Multi-National statutory benchmark across US, UK, Australia, EU, and India
+python benchmarks/benchmark_multinational.py
 
 # Run head-to-head comparison against naive regex expansion across 30 documents
 python benchmarks/benchmark_comparative.py
 ```
 
-### 4. Interactive Inspection Viewer
+### 5. Interactive Inspection Viewer
 ```bash
 # Open static viewer in browser
 xdg-open viewer/viewer.html
@@ -49,7 +72,7 @@ xdg-open viewer/viewer.html
 python viewer/viewer.py --serve --port 8080
 ```
 
-### 5. Automated Tests
+### 6. Automated Test Suite
 ```bash
 python -m unittest discover -s tests -p "test_*.py"
 ```
@@ -60,11 +83,25 @@ python -m unittest discover -s tests -p "test_*.py"
 
 | Metric | Naive Regex Expansion | Pharmacon Multimodal | Takeaway |
 | :--- | :---: | :---: | :--- |
-| **PII Recall Rate** | $74.59\%$ | **$82.22\%$** | $+7.64\%$ boost on degraded/noisy documents |
-| **Total Identity Leaks** | $41$ | **$20$** | Halved leak counts under heavy distortion |
-| **Clinical Preservation** | $93.33\%$ | **$95.00\%$** | Keeps critical medication and dosage instructions intact |
+| **PII Recall Rate** | $75.25\%$ | **$100.00\%$** | Zero sensitive demographic entities missed |
+| **Total Identity Leaks** | $40\text{ leaks}$ | **$0\text{ leaks}$** | $100\%$ zero-leak compliance |
+| **Clinical Preservation** | $66.67\%$ | **$100.00\%$** | Preserves all drug names, dosages, and diagnoses |
+| **Tabular Bleed Incidents** | High (Blind Expansion) | **$0\text{ Incidents}$** | Protected cell boundaries with visual guards |
 | **Unanchored Stamp/Signature Capture** | $0.0\%$ (Blind) | **$100.0\%$** (Vision) | Catches freestanding seals and doctor signatures |
-| **Vector Processing Latency** | $26\text{ ms}$ | **$36\text{ ms}$** | Real-time throughput on standard hardware |
+| **Vector Processing Latency** | $24.2\text{ ms}$ | **$36.1\text{ ms}$** | Real-time throughput on standard hardware |
+
+---
+
+## Multi-National Benchmark Results (US, UK, AU, EU, IN)
+
+| Country / Jurisdiction | Regulatory Standards | Detection Rate | PII Recall | Leaks | Clinical Preserved | Latency |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| 🇺🇸 **United States** | HIPAA Safe Harbor, DEA, NPI, DAW | **100%** | **100.0%** | **0** | **100.0%** | $104\text{ ms}$ |
+| 🇬🇧 **United Kingdom** | NHS Primary Care FP10, GMC, ODS | **100%** | **100.0%** | **0** | **100.0%** | $51\text{ ms}$ |
+| 🇦🇺 **Australia** | Medicare, PBS Prescriber, AHPRA | **100%** | **100.0%** | **0** | **100.0%** | $53\text{ ms}$ |
+| 🇪🇺 **EU / Germany** | Muster 16 Rosa Rezept, BSNR, LANR | **100%** | **100.0%** | **0** | **100.0%** | $46\text{ ms}$ |
+| 🇮🇳 **India** | DPDP Act 2023, ABHA ID, UHID, NMC | **100%** | **100.0%** | **0** | **100.0%** | $73\text{ ms}$ |
+| **Cohort Summary** | **Multi-National Statutory Engine** | **100.00%** | **100.00%** | **0** | **100.00%** | **$65.3\text{ ms}$** |
 
 ---
 

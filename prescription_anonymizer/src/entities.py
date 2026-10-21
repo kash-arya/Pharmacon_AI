@@ -55,6 +55,13 @@ KEY_VALUE_ANCHORS = {
         r"\bPt(?:\s*Name)?\b",
         r"\bPatient\s*[:\-=~+]",
         r"\b‘?Name\b(?!\s+(?:of\s+(?:Insurance|Company|Hospital|Clinic)))",
+        r"\bSurname\b",
+        r"\bForename(?:s)?\b",
+        r"\bVorname\b",
+        r"\bNom\b",
+        r"\bPrénom\b",
+        r"\bApellidos\b",
+        r"\bNombre\b",
         r"\bIn\s+Cas[ce]\s+of\s+Emergency\b",
         r"\bEmergency\s+Contact\b",
     ],
@@ -70,13 +77,29 @@ KEY_VALUE_ANCHORS = {
         r"\bToken(?:\s*No\.?)?\b",
         r"\bPolicy\s*(?:No\.?|Number)?\b",
         r"\bBill\s*No\.?\b",
+        r"\bNHS\s*(?:No\.?|Number)?\b",
+        r"\bDEA\s*(?:No\.?|Number)?\b",
+        r"\bNPI\s*(?:No\.?)?\b",
+        r"\bMedicare\s*(?:No\.?)?\b",
+        r"\bPBS\s*(?:Prescriber)?(?:\s*No\.?)?\b",
+        r"\bAHPRA\s*(?:No\.?)?\b",
+        r"\bVersicherten-Nr\.?\b",
+        r"\bKrankenkasse\b",
+        r"\bKassen-Nr\.?\b",
+        r"\bBSNR\b",
+        r"\bLANR\b",
+        r"\bABHA(?:\s*ID|\s*Number)?\b",
     ],
     "DEMOGRAPHIC": [
         r"\bAge(?:\s*/\s*Sex|\s*/\s*Gender)?\b",
         r"\bSex\b",
         r"\bGender\b",
         r"\bDOB\b",
+        r"\bD\.?O\.?B\.?\b",
         r"\bDate\s+of\s+Birth\b",
+        r"\bGeb(?:urtsdatum)?\.?\s*(?:-Jahr)?\b",
+        r"\bFecha\s+de\s+nacimiento\b",
+        r"\bDate\s+de\s+naissance\b",
         r"\bPat\.?\s*Type\b",
     ],
     "CONTACT": [
@@ -98,6 +121,15 @@ KEY_VALUE_ANCHORS = {
         r"\bTyped\s*By\b",
         r"\bCreated\s*By\b",
         r"\bPrinted\s*By\b",
+        r"\bPharmacist(?:'s|’s)?\s*Signature\b",
+        r"\bDoctor(?:'s|’s)?\s*Signature\b",
+        r"\bPrescriber(?:'s|’s)?\s*Signature\b",
+        r"\bPhysician(?:'s|’s)?\s*Signature\b",
+        r"\bArzt-Nr\.?\b",
+        r"\bBetriebsstätten-Nr\.?\b",
+        r"\bFirma\s+(?:del\s+)?médico\b",
+        r"\bUnterschrift\s+(?:des\s+)?Arztes\b",
+        r"\bGMC\s*(?:No\.?|Number)?\b",
     ],
     "ADDRESS": [
         r"\bAddress\b",
@@ -105,6 +137,8 @@ KEY_VALUE_ANCHORS = {
         r"\bCity\b",
         r"\bState\b",
         r"\bPin(?:\s*code)?\b",
+        r"\bWohnanschrift\b",
+        r"\bDirección\b",
     ],
     "DATE": [
         r"\bDate\b",
@@ -117,6 +151,8 @@ KEY_VALUE_ANCHORS = {
         r"\bVisit\s*Date\b",
         r"\bExpiry\s*Date\b",
         r"\bBirth\s*Date\b",
+        r"\bAusstellungsdatum\b",
+        r"\bFecha\b",
     ],
 }
 
@@ -125,6 +161,8 @@ PATIENT_NAME_ANCHORS = [
     r"\bPt(?:\s+Name)?\s*[:\-=~+]",
     r"\b‘?Name\s*[:\-=~+]",
     r"\bPatient\s*[:\-=~+]",
+    r"\bPatient\s+Surname\s*[:\-=~+]?\s*[A-Za-z\-]+",
+    r"\bForename(?:\(s\))?\s*[:\-=~+]?\s*[A-Za-z\-]+",
     r"\b(?:Mr|Mrs|Ms|Miss|Master|Baby|Shri|Smt)\.?\s*[A-Za-z]+(?:\s+[A-Za-z]+)*",
 ]
 
@@ -150,7 +188,8 @@ IDENTIFIER_ANCHORS = [
 ]
 
 CONTACT_ANCHORS = [
-    r"\b(?:Phone|Mobile|Contact|Tel)(?:\s*No\.?)?\s*[:\-=~+]?\s*\+?[0-9\s\-()]{7,16}",
+    r"\b(?:Phone|Mobile|Contact|Tel)(?:\s*No\.?)?\s*[:\-=~+]?\s*\+?[0-9\s\-()]{7,20}",
+    r"\b(?:\+?91[\-\s]?)?[6-9]\d{4}\s*\d{5}\b",
     r"\b(?:\+?91[\-\s]?)?[6-9]\d{9}\b",
     r"\b0\d{2,4}[\-\s]?\d{6,8}\b",
     r"\b\(\d{3}\)[\s\-]?\d{3}[\-\s]?\d{4}\b",
@@ -158,13 +197,37 @@ CONTACT_ANCHORS = [
 ]
 
 DOCTOR_ANCHORS = [
-    r"\b(?:Dr|Or|Prof)\.?\s+[A-Za-z]+(?:\s+[A-Z]\.?)?(?:\s+[A-Za-z]+)*(?:\s*\([A-Za-z\s,.]+\))?",
-    r"\bConsultant\s*[:\-=~+]?\s*(?:Dr|Or)?\.?\s*[A-Za-z]+(?:\s+[A-Z]\.?)?(?:\s+[A-Za-z]+)*",
+    r"\b(?:Dr\.|Dr|Prof\.|Prof)\s+(?:med\.\s+)?[A-Za-z]+(?:\s+[A-Z]\b\.?)?(?:\s+[A-Za-z]+)*(?:\s*\([A-Za-z\s,.]+\))?",
+    r"\bConsultant\s*[:\-=~+]?\s*(?:Dr\.|Dr)?\s*[A-Za-z]+(?:\s+[A-Z]\b\.?)?(?:\s+[A-Za-z]+)*",
     r"\bRef(?:erred)?[.,]?\s*By\s*[:\-=~+]?\s*[A-Za-z0-9\s.]+",
     r"\bTyped\s*By\s*[:\-=~+]?\s*[A-Za-z0-9\s.]+",
     r"\bCreated\s*By\s*[:\-=~+]?\s*[A-Za-z0-9\s.]+",
     r"\bPrinted\s*By\s*[:\-=~+]?\s*[A-Za-z0-9\s.]+",
-    r"\b(?:MBBS|M\.B\.B\.S|MD|M\.D|MS|M\.S|DMRD|D\.M\.R\.D|DNB|D\.N\.B|FRCR|FRCS)\b",
+    r"\b(?:MBBS|M\.B\.B\.S|MD|M\.D|MS|M\.S|DMRD|D\.M\.R\.D|DNB|D\.N\.B|FRCR|FRCS|FRACP)\b",
+]
+
+# Statutory National Identifiers (US, UK, AU, EU, IN)
+STATUTORY_ID_PATTERNS = [
+    # US Identifiers
+    (r"\bDEA(?:\s*(?:REG|Reg|Registration)\.?)?(?:\s*(?:No|Number)\.?)?\s*[:\-=~+]?\s*([A-Z]{2}[0-9]{7})\b", "IDENTIFIER_DEA"),
+    (r"\bNPI(?:\s*(?:No|Number)\.?)?\s*[:\-=~+]?\s*(\d{10})\b", "IDENTIFIER_NPI"),
+    (r"\b(?:SSN|Social\s*Security)\s*[:\-=~+]?\s*(\d{3}-\d{2}-\d{4})\b", "IDENTIFIER_SSN"),
+    (r"\b(?:(?:State|CA|California|NY|TX|FL)?\s*(?:Medical\s*)?Lic(?:ense)?\.?\s*(?:No\.?)?)\s*[:\-=~+]?\s*([A-Z0-9]{5,10})\b", "IDENTIFIER_US_STATE_LIC"),
+    # UK Identifiers
+    (r"\bNHS(?:\s*(?:No|Number)\.?)?\s*[:\-=~+]?\s*(\d{3}\s*\d{3}\s*\d{4}|\d{10})\b", "IDENTIFIER_NHS"),
+    (r"\bGMC(?:\s*(?:No|Number)\.?)?\s*[:\-=~+]?\s*(\d{7})\b", "IDENTIFIER_GMC"),
+    # Australia Identifiers
+    (r"\bMedicare(?:\s*(?:No|Number)\.?)?\s*[:\-=~+]?\s*(\d{4}\s*\d{5}\s*\d{1}|\d{10}(?:\s*\d)?)\b", "IDENTIFIER_MEDICARE"),
+    (r"\b(?:PBS\s+Prescriber|PBS|Prescriber)(?:\s*(?:No|Number)\.?)?\s*[:\-=~+]?\s*(\d{6,7}[A-Za-z]?)\b", "IDENTIFIER_PBS"),
+    (r"\bAHPRA(?:\s*(?:REG|Reg|Registration)\.?)?(?:\s*(?:No|Number)\.?)?\s*[:\-=~+]?\s*(MED\d{10})\b", "IDENTIFIER_AHPRA"),
+    # EU / German Identifiers
+    (r"\bVersicherten-Nr\.?\s*[:\-=~+]?\s*([A-Z0-9]{10})\b", "IDENTIFIER_VERSICHERTEN"),
+    (r"\b(?:BSNR|Betriebsstätten-Nr\.?)\s*[:\-=~+]?\s*(\d{9})\b", "IDENTIFIER_BSNR"),
+    (r"\b(?:LANR|Arzt-Nr\.?)\s*[:\-=~+]?\s*(\d{9})\b", "IDENTIFIER_LANR"),
+    (r"\bKostentragerkennung\s*[:\-=~+]?\s*(\d{9})\b", "IDENTIFIER_KOSTENTRAGER"),
+    # India Identifiers
+    (r"\bABHA(?:\s*(?:ID|Number)\.?)?\s*[:\-=~+]?\s*(\d{2}-\d{4}-\d{4}-\d{4})\b", "IDENTIFIER_ABHA"),
+    (r"\b(?:MCI|NMC|KMC|DMC|TMC)[-\s]?\d{4,6}\b", "IDENTIFIER_MCI"),
 ]
 
 HEADER_SURNAMES = [
@@ -180,10 +243,14 @@ CLINIC_HEADERS = [
 ]
 
 ADDRESS_ANCHORS = [
-    r"\b(?:Address|Addr)\s*[:\-=~+]?\s*.*",
+    r"\b(?:Address|Addr|Wohnanschrift|Dirección)\s*[:\-=~+]?\s*[^\n\r]+",
+    r"\b(?:Surgery\s+Address|Practice\s+Stamp|Practice\s+Address)\s*[:\-=~+]?\s*[^\n\r]+",
     r"\b(?:SEC|Sector)\s*\d+[\s,]+[A-Za-z]+",
-    r"\b\d+\s+[A-Za-z0-9\-]+(?:\s+[A-Za-z0-9\-]+)*\s+(?:Street|St|Avenue|Ave|Drive|Dr|Road|Rd|Boulevard|Blvd|Court|Ct|Lane|Ln|Bollinger|Colony|Market)\b",
-    r"\b(?:New\s+York(?:\s+City)?|Jersey\s+City|New\s+Jersey|new\s+Russia|New\s*Delhi|Kurukshetra|Haryana|United\s+States)\b",
+    r"\b\d+[A-Za-z0-9\-/]?[ \t]+[A-Za-z0-9\-]+(?:[ \t]+[A-Za-z0-9\-]+){0,5}[ \t]+(?:Street|St|Avenue|Ave|Drive|Road|Rd|Boulevard|Blvd|Court|Ct|Lane|Ln|Terrace|Colony|Market)\b",
+    r"\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b",
+    r"\b(?:NSW|VIC|QLD|WA|SA|TAS|ACT|NT)\s+\d{4}\b",
+    r"\b\d{5}\s+[A-ZÄÖÜ][a-zäöüß]+\b",
+    r"\b(?:New\s+York(?:\s+City)?|Jersey\s+City|New\s+Jersey|new\s+Russia|New\s*Delhi|Kurukshetra|Haryana|United\s+States|London|Sydney|Melbourne|Berlin)\b",
 ]
 
 DATE_ANCHORS = [
@@ -195,10 +262,10 @@ DATE_ANCHORS = [
 
 CLINICAL_WHITELIST_PATTERNS = [
     # Pharmacology: active ingredients, dosage forms, routes, frequencies
-    r"\b(?:Prednisone|Lialda|Omeprazole|Telmisartan|Amlodipine|Paracetamol|Triptans|Ibuprofen|Metformin|Amoxicillin|Azithromycin|Pantoprazole|Cefixime)\b",
-    r"\b(?:mg|mcg|ml|gm|gram|tablet|tablets|capsule|capsules|syrup|suspension|drops|injection|ointment|gel|cream|patch)\b",
-    r"\b(?:Refill|Refil|daily|once\s+daily|twice\s+daily|thrice\s+daily|SOS|stat|PRN|meals|breakfast|bedtime|hs|tid|bid|od|qid|three\s+months|for\s+three\s+months|tablets\s+daily)\b",
-    r"\b(?:Rx|Prescription|Advice|Treatment|ADVICE\s*/\s*TREATMENT|Directions|Instructions|INVESTIGATIONS|General\s+Local/\s*Systemic\s+Examination)\b",
+    r"\b(?:Prednisone|Lialda|Omeprazole|Telmisartan|Amlodipine|Paracetamol|Triptans|Ibuprofen|Metformin|Amoxicillin|Azithromycin|Pantoprazole|Cefixime|Lipitor|Atorvastatin|Lisinopril|Salbutamol|Esomeprazole|Metoprolol|Metoprolol\s+Tartrate|Ramipril|Pantoprazol|Glimepiride|Rosuvastatin)\b",
+    r"\b(?:mg|mcg|micrograms|ml|gm|gram|tablet|tablets|capsule|capsules|syrup|suspension|drops|injection|ointment|gel|cream|patch|inhaler)\b",
+    r"\b(?:Refill|Refil|daily|once\s+daily|twice\s+daily|thrice\s+daily|SOS|stat|PRN|meals|breakfast|bedtime|hs|tid|bid|od|qid|three\s+months|for\s+three\s+months|tablets\s+daily|Dispense\s+as\s+Written|DAW)\b",
+    r"\b(?:Rx|Rp\.?|Prescription|Verordnungen|Advice|Treatment|ADVICE\s*/\s*TREATMENT|Directions|Instructions|INVESTIGATIONS|General\s+Local/\s*Systemic\s+Examination)\b",
     # Clinical Departments & Hospital Specialties
     r"\b(?:Department|GENERAL\s+SURGERY|General\s+Surgery|Surgery|Internal\s+Medicine|Orthopedics|Radiology|Pediatrics|Cardiology)\b",
     # Clinical Diagnoses, Vitals & Findings

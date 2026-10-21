@@ -36,6 +36,12 @@ class TestPrescriptionAnonymizer(unittest.TestCase):
         cls.sample_image = os.path.join(cls.samples_dir, "extracted_images", "sample_prescription_1_p1.png")
         cls.temp_dir = tempfile.mkdtemp(prefix="test_pharmacon_")
 
+    @classmethod
+    def tearDownClass(cls):
+        if hasattr(cls, "temp_dir") and os.path.exists(cls.temp_dir):
+            import shutil
+            shutil.rmtree(cls.temp_dir, ignore_errors=True)
+
     # -----------------------------------------------------------------------
     # Raster Checker Tests
     # -----------------------------------------------------------------------
@@ -187,6 +193,163 @@ class TestPrescriptionAnonymizer(unittest.TestCase):
         rep = process_file(self.vector_pdf, out_sample)
         self.assertEqual(rep["format_type"], "VECTOR_DIGITAL")
         self.assertTrue(os.path.exists(out_sample))
+
+    # -----------------------------------------------------------------------
+    # FastAPI Microservice Integration Tests
+    # -----------------------------------------------------------------------
+    def test_api_health_endpoint(self):
+        from fastapi.testclient import TestClient
+        from api.server import app
+        client = TestClient(app)
+        res = client.get("/health")
+        self.assertEqual(res.status_code, 200)
+        body = res.json()
+        self.assertEqual(body["status"], "healthy")
+        self.assertTrue(body["tesseract_model_present"])
+
+    def test_api_anonymize_json_endpoint(self):
+        from fastapi.testclient import TestClient
+        from api.server import app
+        client = TestClient(app)
+        with open(self.vector_pdf, "rb") as f:
+            res = client.post("/api/v1/anonymize?return_type=json", files={"file": ("sample.pdf", f, "application/pdf")})
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data["status"], "SUCCESS")
+        self.assertEqual(data["format_type"], "VECTOR_DIGITAL")
+        self.assertGreaterEqual(data["total_entities_redacted"], 10)
+        self.assertTrue(data["data_uri"].startswith("data:application/pdf;base64,"))
+
+    def test_api_anonymize_file_stream_endpoint(self):
+        from fastapi.testclient import TestClient
+        from api.server import app
+        client = TestClient(app)
+        with open(self.vector_pdf, "rb") as f:
+            res = client.post("/api/v1/anonymize?return_type=file", files={"file": ("sample.pdf", f, "application/pdf")})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.headers.get("content-type"), "application/pdf")
+        self.assertGreater(len(res.content), 500)
+        self.assertIn("x-redacted-count", res.headers)
+
+    def test_api_web_interface_endpoints(self):
+        from fastapi.testclient import TestClient
+        from api.server import app
+        client = TestClient(app)
+
+        res_root = client.get("/")
+        self.assertEqual(res_root.status_code, 200)
+        self.assertIn("text/html", res_root.headers.get("content-type", ""))
+        self.assertIn("Pharmacon Anonymizer", res_root.text)
+        self.assertIn("split-container", res_root.text)
+
+        res_app = client.get("/app")
+        self.assertEqual(res_app.status_code, 200)
+        self.assertIn("text/html", res_app.headers.get("content-type", ""))
+
+        res_api = client.get("/api")
+        self.assertEqual(res_api.status_code, 200)
+        self.assertEqual(res_api.json()["version"], "2.0.0")
+
+    def test_api_anonymize_preview_endpoint(self):
+        from fastapi.testclient import TestClient
+        from api.server import app
+        client = TestClient(app)
+        with open(self.vector_pdf, "rb") as f:
+            res = client.post("/api/v1/anonymize/preview", files={"file": ("sample.pdf", f, "application/pdf")})
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data["status"], "SUCCESS")
+        self.assertEqual(data["format_type"], "VECTOR_DIGITAL")
+        self.assertGreaterEqual(data["total_entities_redacted"], 10)
+        self.assertTrue(data["original_image"].startswith("data:image/jpeg;base64,"))
+        self.assertTrue(data["redacted_image"].startswith("data:image/jpeg;base64,"))
+
+    def test_api_anonymize_batch_endpoint(self):
+        import io
+        import zipfile
+        from fastapi.testclient import TestClient
+        from api.server import app
+
+        # Prepare in-memory test zip containing vector PDF and raster image
+        zip_buf = io.BytesIO()
+        with zipfile.ZipFile(zip_buf, "w") as zf:
+            zf.write(self.vector_pdf, arcname="prescription_apollo.pdf")
+            zf.write(self.sample_image, arcname="images/rx_slip.png")
+        zip_buf.seek(0)
+
+        client = TestClient(app)
+        res = client.post(
+            "/api/v1/anonymize/batch",
+            files={"file": ("batch_prescriptions.zip", zip_buf.getvalue(), "application/zip")}
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.headers.get("content-type"), "application/zip")
+        self.assertEqual(res.headers.get("x-total-documents"), "2")
+        self.assertGreaterEqual(int(res.headers.get("x-total-entities-redacted", 0)), 15)
+
+        # Inspect returned output ZIP
+        out_buf = io.BytesIO(res.content)
+        with zipfile.ZipFile(out_buf, "r") as out_zf:
+            namelist = out_zf.namelist()
+            self.assertIn("batch_audit_summary.json", namelist)
+            self.assertIn("prescription_apollo_anonymized.pdf", namelist)
+            self.assertIn("rx_slip_anonymized.png", namelist)
+
+            summary = json.loads(out_zf.read("batch_audit_summary.json").decode("utf-8"))
+            self.assertEqual(summary["total_documents"], 2)
+            self.assertEqual(summary["successful_redactions"], 2)
+            self.assertGreaterEqual(summary["total_entities_redacted"], 15)
+
+    def test_api_error_handling(self):
+        from fastapi.testclient import TestClient
+        from api.server import app
+        client = TestClient(app)
+
+        # 1. Unsupported extension
+        res_bad_ext = client.post(
+            "/api/v1/anonymize",
+            files={"file": ("malware.exe", b"test content", "application/octet-stream")}
+        )
+        self.assertEqual(res_bad_ext.status_code, 400)
+        self.assertIn("Unsupported file format", res_bad_ext.json()["detail"])
+
+        # 2. Empty file upload
+        res_empty = client.post(
+            "/api/v1/anonymize",
+            files={"file": ("empty.pdf", b"", "application/pdf")}
+        )
+        self.assertEqual(res_empty.status_code, 400)
+        self.assertIn("empty", res_empty.json()["detail"].lower())
+
+        # 3. Non-zip upload to batch endpoint
+        res_bad_batch = client.post(
+            "/api/v1/anonymize/batch",
+            files={"file": ("not_a_zip.pdf", b"pdf content", "application/pdf")}
+        )
+        self.assertEqual(res_bad_batch.status_code, 400)
+        self.assertIn("must be a .zip archive", res_bad_batch.json()["detail"])
+
+
+    def test_multinational_jurisdiction_detector(self):
+        from src.jurisdiction import JurisdictionDetector
+        detector = JurisdictionDetector()
+        
+        self.assertEqual(detector.detect("DEA REG NO: AB1234567 NPI: 1234567890"), "US")
+        self.assertEqual(detector.detect("NHS NUMBER: 485 777 3456 GMC 6123456 FP10"), "UK")
+        self.assertEqual(detector.detect("MEDICARE NO: 2345 67890 1 PBS PRESCRIBER NO: 456789A AHPRA"), "AU")
+        self.assertEqual(detector.detect("Versicherten-Nr. T123456789 BSNR: 723456700 LANR: 987654321 Muster 16"), "EU")
+        self.assertEqual(detector.detect("UHID: AP2024-88912 ABHA ID: 91-4567-8912-3456 NMC-45892"), "IN")
+        self.assertEqual(detector.detect("Generic hospital slip without statutory tags"), "GLOBAL")
+
+    def test_multinational_benchmark_execution(self):
+        from benchmarks.benchmark_multinational import run_multinational_benchmark
+        summary = run_multinational_benchmark()
+        self.assertEqual(summary["total_cases"], 5)
+        self.assertEqual(summary["passed_cases"], 5)
+        self.assertEqual(summary["jurisdiction_detection_accuracy"], 100.0)
+        self.assertEqual(summary["avg_pii_recall"], 100.0)
+        self.assertEqual(summary["total_pii_leaks"], 0)
+        self.assertEqual(summary["avg_clinical_preserved"], 100.0)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@
     "avg_clinical_preservation": 66.66666666666667,
     "tabular_bleed_cases": 0,
     "unanchored_visual_recall": 0.0,
-    "avg_latency_ms": 24.225585533228394
+    "avg_latency_ms": 17.769521200049592
   },
   "pharmacon_multimodal": {
     "avg_pii_recall": 100.0,
@@ -14,7 +14,7 @@
     "avg_clinical_preservation": 100.0,
     "tabular_bleed_cases": 0,
     "unanchored_visual_recall": 100.0,
-    "avg_latency_ms": 1672.369844466569
+    "avg_latency_ms": 1142.1392813996742
   },
   "detailed_baseline": [
     {
@@ -24,7 +24,7 @@
       "leaks": 1,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 25.09174599981634
+      "latency_ms": 17.671980000159238
     },
     {
       "id": "case_02_vector_clean",
@@ -33,7 +33,7 @@
       "leaks": 1,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 10.592283997539198
+      "latency_ms": 9.327210998890223
     },
     {
       "id": "case_03_vector_clean",
@@ -42,7 +42,7 @@
       "leaks": 1,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 9.428902998479316
+      "latency_ms": 9.245763001672458
     },
     {
       "id": "case_04_vector_clean",
@@ -51,7 +51,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 8.929709998483304
+      "latency_ms": 8.780406998994295
     },
     {
       "id": "case_05_vector_clean",
@@ -60,7 +60,7 @@
       "leaks": 1,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 8.823141000902979
+      "latency_ms": 8.39778500085231
     },
     {
       "id": "case_06_vector_clean",
@@ -69,7 +69,7 @@
       "leaks": 1,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 9.884536000754451
+      "latency_ms": 8.169824999640696
     },
     {
       "id": "case_07_vector_clean",
@@ -78,7 +78,7 @@
       "leaks": 1,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 8.471882003505016
+      "latency_ms": 8.192667999537662
     },
     {
       "id": "case_08_vector_clean",
@@ -87,7 +87,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 8.337502997164847
+      "latency_ms": 7.586269999592332
     },
     {
       "id": "case_09_tabular_grid",
@@ -96,7 +96,7 @@
       "leaks": 2,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 8.34219500029576
+      "latency_ms": 7.198317001893884
     },
     {
       "id": "case_10_tabular_grid",
@@ -105,7 +105,7 @@
       "leaks": 2,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 8.810309998807497
+      "latency_ms": 7.171072997152805
     },
     {
       "id": "case_11_tabular_grid",
@@ -114,7 +114,7 @@
       "leaks": 1,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 9.0096710009675
+      "latency_ms": 6.2657050002599135
     },
     {
       "id": "case_12_tabular_grid",
@@ -123,7 +123,7 @@
       "leaks": 2,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 8.81641399973887
+      "latency_ms": 8.328108000569046
     },
     {
       "id": "case_13_tabular_grid",
@@ -132,7 +132,7 @@
       "leaks": 2,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 8.308954998938134
+      "latency_ms": 9.414200998435263
     },
     {
       "id": "case_14_tabular_grid",
@@ -141,7 +141,7 @@
       "leaks": 2,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 8.954720000474481
+      "latency_ms": 6.7055879990221
     },
     {
       "id": "case_15_tabular_grid",
@@ -150,7 +150,7 @@
       "leaks": 1,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 7.841161001124419
+      "latency_ms": 6.847070002550026
     },
     {
       "id": "case_16_tabular_grid",
@@ -159,7 +159,7 @@
       "leaks": 2,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 8.026392999454401
+      "latency_ms": 7.14905600034399
     },
     {
       "id": "case_17_scanned_real",
@@ -168,7 +168,7 @@
       "leaks": 5,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 7.140465000702534
+      "latency_ms": 5.534348001674516
     },
     {
       "id": "case_18_scanned_real",
@@ -177,7 +177,7 @@
       "leaks": 2,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 5.808676000015112
+      "latency_ms": 4.730725999252172
     },
     {
       "id": "case_19_scanned_real",
@@ -186,7 +186,7 @@
       "leaks": 4,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 2.470660998369567
+      "latency_ms": 1.9608259972301312
     },
     {
       "id": "case_20_scanned_img_png",
@@ -195,7 +195,7 @@
       "leaks": 2,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 127.8924090001965
+      "latency_ms": 96.17963400160079
     },
     {
       "id": "case_21_stamp_signature",
@@ -204,7 +204,7 @@
       "leaks": 1,
       "preservation": 0.0,
       "tabular_bleed": false,
-      "latency_ms": 41.2921790011751
+      "latency_ms": 28.577212000527652
     },
     {
       "id": "case_22_stamp_signature",
@@ -213,7 +213,7 @@
       "leaks": 1,
       "preservation": 0.0,
       "tabular_bleed": false,
-      "latency_ms": 40.71063899755245
+      "latency_ms": 28.88838600119925
     },
     {
       "id": "case_23_stamp_signature",
@@ -222,7 +222,7 @@
       "leaks": 1,
       "preservation": 0.0,
       "tabular_bleed": false,
-      "latency_ms": 40.948104000563035
+      "latency_ms": 24.47705599843175
     },
     {
       "id": "case_24_stamp_signature",
@@ -231,7 +231,7 @@
       "leaks": 1,
       "preservation": 0.0,
       "tabular_bleed": false,
-      "latency_ms": 50.78490999949281
+      "latency_ms": 25.069332001294242
     },
     {
       "id": "case_25_stamp_signature",
@@ -240,7 +240,7 @@
       "leaks": 1,
       "preservation": 0.0,
       "tabular_bleed": false,
-      "latency_ms": 40.51301300205523
+      "latency_ms": 25.092216001212364
     },
     {
       "id": "case_26_skew_rotated",
@@ -249,7 +249,7 @@
       "leaks": 0,
       "preservation": 0.0,
       "tabular_bleed": false,
-      "latency_ms": 41.74869200141984
+      "latency_ms": 27.76832400195417
     },
     {
       "id": "case_27_low_contrast",
@@ -258,7 +258,7 @@
       "leaks": 1,
       "preservation": 0.0,
       "tabular_bleed": false,
-      "latency_ms": 40.480431001924444
+      "latency_ms": 38.14693199819885
     },
     {
       "id": "case_28_gaussian_noise",
@@ -267,7 +267,7 @@
       "leaks": 0,
       "preservation": 0.0,
       "tabular_bleed": false,
-      "latency_ms": 44.31134399783332
+      "latency_ms": 34.293574000912486
     },
     {
       "id": "case_29_phone_shadow",
@@ -276,7 +276,7 @@
       "leaks": 1,
       "preservation": 0.0,
       "tabular_bleed": false,
-      "latency_ms": 40.230681999673834
+      "latency_ms": 29.628067997691687
     },
     {
       "id": "case_30_faded_thermal",
@@ -285,7 +285,7 @@
       "leaks": 0,
       "preservation": 0.0,
       "tabular_bleed": false,
-      "latency_ms": 44.765836999431485
+      "latency_ms": 26.287975000741426
     }
   ],
   "detailed_pharmacon": [
@@ -296,7 +296,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 43.754852002166444,
+      "latency_ms": 30.877866000082577,
       "visual_detected": false
     },
     {
@@ -306,7 +306,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 27.82048799781478,
+      "latency_ms": 26.434523999341764,
       "visual_detected": false
     },
     {
@@ -316,7 +316,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 24.115746000461513,
+      "latency_ms": 23.70297499874141,
       "visual_detected": false
     },
     {
@@ -326,7 +326,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 22.20270699763205,
+      "latency_ms": 19.277098999737063,
       "visual_detected": false
     },
     {
@@ -336,7 +336,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 22.857210999063682,
+      "latency_ms": 18.97484499932034,
       "visual_detected": false
     },
     {
@@ -346,7 +346,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 26.248859001498204,
+      "latency_ms": 20.18671099722269,
       "visual_detected": false
     },
     {
@@ -356,7 +356,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 22.523054998600855,
+      "latency_ms": 20.193041000311496,
       "visual_detected": false
     },
     {
@@ -366,7 +366,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 20.570339998812415,
+      "latency_ms": 17.841823999333428,
       "visual_detected": false
     },
     {
@@ -376,7 +376,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 22.38194099845714,
+      "latency_ms": 19.64605099783512,
       "visual_detected": false
     },
     {
@@ -386,7 +386,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 21.857654999621445,
+      "latency_ms": 16.593962998740608,
       "visual_detected": false
     },
     {
@@ -396,7 +396,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 21.543159000430023,
+      "latency_ms": 16.902876002859557,
       "visual_detected": false
     },
     {
@@ -406,7 +406,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 21.118405999004608,
+      "latency_ms": 21.015731999796117,
       "visual_detected": false
     },
     {
@@ -416,7 +416,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 21.977589996822644,
+      "latency_ms": 21.08616199984681,
       "visual_detected": false
     },
     {
@@ -426,7 +426,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 32.45783800230129,
+      "latency_ms": 18.7647040002048,
       "visual_detected": false
     },
     {
@@ -436,7 +436,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 18.890153001848375,
+      "latency_ms": 17.918526998982998,
       "visual_detected": false
     },
     {
@@ -446,7 +446,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 18.677176998608047,
+      "latency_ms": 16.80748000217136,
       "visual_detected": false
     },
     {
@@ -456,7 +456,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 4257.154432001698,
+      "latency_ms": 2737.7537120009947,
       "visual_detected": false
     },
     {
@@ -466,7 +466,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 4619.2089279975335,
+      "latency_ms": 2826.3624490027723,
       "visual_detected": false
     },
     {
@@ -476,7 +476,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 3845.45628900014,
+      "latency_ms": 2485.424847000104,
       "visual_detected": false
     },
     {
@@ -486,7 +486,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 3137.916444000439,
+      "latency_ms": 2202.1329780000087,
       "visual_detected": false
     },
     {
@@ -496,7 +496,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 3412.9293510013667,
+      "latency_ms": 2667.8397039977426,
       "visual_detected": true
     },
     {
@@ -506,7 +506,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 3406.7173049988924,
+      "latency_ms": 2536.15426900069,
       "visual_detected": true
     },
     {
@@ -516,7 +516,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 3474.4275939992804,
+      "latency_ms": 2310.4881559993373,
       "visual_detected": true
     },
     {
@@ -526,7 +526,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 3371.289949001948,
+      "latency_ms": 2177.696216000186,
       "visual_detected": true
     },
     {
@@ -536,7 +536,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 3373.2290920015657,
+      "latency_ms": 2165.110422996804,
       "visual_detected": true
     },
     {
@@ -546,7 +546,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 3090.3353249996144,
+      "latency_ms": 2051.0482709978533,
       "visual_detected": false
     },
     {
@@ -556,7 +556,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 3399.38150099988,
+      "latency_ms": 2189.127803001611,
       "visual_detected": true
     },
     {
@@ -566,7 +566,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 3640.2598429995123,
+      "latency_ms": 2810.9812719994807,
       "visual_detected": true
     },
     {
@@ -576,7 +576,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 3424.032957002055,
+      "latency_ms": 2235.173692999524,
       "visual_detected": true
     },
     {
@@ -586,7 +586,7 @@
       "leaks": 0,
       "preservation": 100.0,
       "tabular_bleed": false,
-      "latency_ms": 3329.7591470000043,
+      "latency_ms": 2542.6602689985884,
       "visual_detected": true
     }
   ]

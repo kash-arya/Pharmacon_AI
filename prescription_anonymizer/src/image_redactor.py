@@ -24,8 +24,10 @@ try:
         CLINICAL_WHITELIST_PATTERNS,
         HEADER_SURNAMES,
         CLINIC_HEADERS,
+        STATUTORY_ID_PATTERNS,
     )
     from prescription_anonymizer.src.vlm_grounder import MultimodalVisualGrounder
+    from prescription_anonymizer.src.jurisdiction import JurisdictionDetector
 except ImportError:
     from src.entities import (
         BoundingBox,
@@ -34,8 +36,10 @@ except ImportError:
         CLINICAL_WHITELIST_PATTERNS,
         HEADER_SURNAMES,
         CLINIC_HEADERS,
+        STATUTORY_ID_PATTERNS,
     )
     from src.vlm_grounder import MultimodalVisualGrounder
+    from src.jurisdiction import JurisdictionDetector
 
 
 def resolve_tessdata_path(custom_dir: Optional[str] = None) -> str:
@@ -329,47 +333,7 @@ class LocalImageRedactor:
         # -------------------------------------------------------------------
         # 1. Dynamic 2D Multi-Column Key-Value Form Field Parser
         # -------------------------------------------------------------------
-        anchor_patterns = [
-            ("PATIENT_NAME", [
-                r"\bPatient\s+Information\b", r"\bPatient\s*Name\b",
-                r"\bPt(?:\s*Name)?\b", r"\bPatient\s*[:\-=~+]",
-                r"\b‘?Name\b(?!\s+(?:of\s+(?:Insurance|Company|Hospital|Clinic)))",
-                r"\bIn\s+Cas[ce]\s+of\s+Emergency\b", r"\bEmergency\s+Contact\b",
-            ]),
-            ("INSURANCE", [
-                r"\bName\s+of\s+Insurance\s+Company\b"
-            ]),
-            ("IDENTIFIER", [
-                r"\bUHID(?:\s*No\.?)?\b", r"\bOP(?:\s*No\.?)?\b",
-                r"\bOPD(?:\s*No\.?)?\b(?!\s*(?:Timings|Hours))", r"\bIPD\b",
-                r"\bMRN\b", r"\bToken(?:\s*No\.?)?\b",
-                r"\bPolicy(?:\s*No\.?)?\b", r"\bReg(?:istration)?\.?\s*(?:No\.?)?\b",
-                r"\bBill\s*No\.?\b", r"\bPatient\s*ID\b"
-            ]),
-            ("DEMOGRAPHIC", [
-                r"\bAge(?:\s*/\s*Sex|\s*/\s*Gender)?\b", r"\bSex\b",
-                r"\bGender\b", r"\bDOB\b", r"\bBirth\s*Date\b",
-                r"\bPat\.?\s*Type\b"
-            ]),
-            ("CONTACT", [
-                r"\bMobile(?:\s*No\.?)?\b", r"\bPhone(?:\s*No\.?)?\b",
-                r"\bHome\s+phone\b", r"\bWork\s+phone\b",
-                r"\bContact\b", r"\bTel\b", r"\bE-?mail\b"
-            ]),
-            ("DOCTOR_INFO", [
-                r"\bConsultant\b", r"\bDoctor\b", r"\bRef(?:erred)?[.,]?\s*By\b",
-                r"\bRadiologist\b", r"\bTyped\s*By\b", r"\bCreated\s*By\b",
-                r"\bPrinted\s*By\b"
-            ]),
-            ("ADDRESS", [
-                r"\bAddress\b", r"\bAddr\b"
-            ]),
-            ("DATE", [
-                r"\bDate\b", r"\bOP\s*Date\b", r"\bReg\.?\s*Date\b",
-                r"\bReport\s*Date\b", r"\bPrint\s*Date\b", r"\bCollected\s*Date\b",
-                r"\bReceived\s*Date\b", r"\bVisit\s*Date\b", r"\bExpiry\s*Date\b"
-            ]),
-        ]
+        anchor_patterns = list(KEY_VALUE_ANCHORS.items())
 
         for l_idx, l_obj in enumerate(line_objects):
             l_text = l_obj["text"]
@@ -525,7 +489,7 @@ class LocalImageRedactor:
             ("DATE", r"\b\d{1,2}[/\-.][0-9]{1,2}[/\-.][0-9]{2,4}\b|\b\d{1,2}[\s\-_](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[\s\-_]\d{2,4}\b|\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4}\b"),
             ("EMAIL", r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
             ("PATIENT_HONORIFIC", r"\b(?:Mr|Mrs|Ms|Miss|Master|Baby|Shri|Smt)\.?[^\S\r\n]*[A-Z][a-zA-Z]+(?:[^\S\r\n]+[A-Z][a-zA-Z]+)*\b"),
-            ("DOCTOR_NAME", r"\b(?:Dr|Prof)\.?\s*[A-Z][a-zA-Z]+(?:[^\S\r\n]+[A-Z]\.?)?(?:[^\S\r\n]+[A-Z][a-zA-Z]+)*(?:\s*\([A-Za-z\s,.]+\))?\b|\bOr[^\S\r\n]+[A-Z][A-Za-z]+(?:[^\S\r\n]+[A-Z][A-Za-z]+)*\b|\b(?:Dr\.?|Dr\s+)?PAWAN\s+K\s+GOYAL\b|\bNK\s+GOYAL\b|\bDrJohn\b"),
+            ("DOCTOR_NAME", r"\b(?:Dr\.|Dr|Prof\.|Prof)\s*[A-Z][a-zA-Z]+(?:[^\S\r\n]+[A-Z]\.?)?(?:[^\S\r\n]+[A-Z][a-zA-Z]+)*(?:\s*\([A-Za-z\s,.]+\))?\b|\bOr\.\s*[A-Z][A-Za-z]+(?:[^\S\r\n]+[A-Z][A-Za-z]+)*\b|\b(?:Dr\.?|Dr\s+)?PAWAN\s+K\s+GOYAL\b|\bNK\s+GOYAL\b|\bDrJohn\b"),
             ("DOCTOR_CREDENTIALS", r"\b(?:MBBS|M\.B\.B\.S|MD|M\.D|MS|M\.S|DMRD|D\.M\.R\.D|DNB|D\.N\.B|FRCR|FRCS)\b"),
             ("ID_TOKEN", r"\bUD-\d+\b|\bOP-\d+\b|\b1024\d{5}\b|\b7115207313\b|\bAPL-2026-\d+\b|\bMCI-\d+\b"),
             ("ADDRESS_STREET", r"\b\d+\s+[A-Za-z0-9\-]+(?:\s+[A-Za-z0-9\-]+)*\s+(?:Street|St|Avenue|Ave|Drive|Dr|Road|Rd|Boulevard|Blvd|Court|Ct|Lane|Ln|Bollinger)\b|\bSEC(?:TOR)?\s*\d+[\s,]+[A-Za-z]+\b|\bSR\s+Market,\s+Geeta\s+Colony\b"),
@@ -539,6 +503,15 @@ class LocalImageRedactor:
                     rects = page.search_for(match_str, textpage=tp)
                     for r in rects:
                         add_target(r, cat, match_str, engine="regex_scanner")
+
+        # Statutory National Identifiers (US, UK, AU, EU, IN)
+        for reg, cat in STATUTORY_ID_PATTERNS:
+            for match in re.finditer(reg, full_text, re.IGNORECASE):
+                match_str = match.group(0).strip()
+                if not self.is_whitelisted(match_str) and len(match_str) > 2:
+                    rects = page.search_for(match_str, textpage=tp)
+                    for r in rects:
+                        add_target(r, cat, match_str, engine="statutory_scanner")
 
         # Header zone matching (surnames & clinic identifiers in upper region)
         header_zone_y = page.rect.height * 0.45
@@ -663,10 +636,10 @@ class LocalImageRedactor:
             all_targets.extend(targets)
         return all_targets
 
-    def redact(self, input_path: str, output_path: Optional[str] = None) -> Dict[str, Any]:
+    def redact(self, input_path: str, output_path: Optional[str] = None, jurisdiction: str = "AUTO") -> Dict[str, Any]:
         """
         Executes complete, irreversible redaction on scanned raster PDF or image.
-        Returns audit summary dictionary.
+        Returns audit summary dictionary with detected jurisdiction.
         """
         input_path = os.path.abspath(input_path)
         if not os.path.exists(input_path):
@@ -690,6 +663,8 @@ class LocalImageRedactor:
                 pdf_bytes = img_doc.convert_to_pdf()
             doc = pymupdf.open("pdf", pdf_bytes)
             page = doc[0]
+
+            resolved_jur = JurisdictionDetector.resolve_jurisdiction(page.get_text(), jurisdiction)
 
             # 1. OCR-based targets
             targets = self.find_pii_targets_for_page(page, 1)
@@ -757,6 +732,7 @@ class LocalImageRedactor:
             return {
                 "input_file": input_path,
                 "output_file": output_path,
+                "jurisdiction": resolved_jur,
                 "format_type": "SCANNED_RASTER_IMAGE",
                 "total_entities_redacted": len(targets),
                 "redacted_targets": [t.model_dump() for t in targets]
@@ -764,6 +740,8 @@ class LocalImageRedactor:
 
         # Handle PDF Input
         doc = pymupdf.open(input_path)
+        full_pdf_text = " ".join(p.get_text() for p in doc)
+        resolved_jur = JurisdictionDetector.resolve_jurisdiction(full_pdf_text, jurisdiction)
         all_targets: List[RedactionTarget] = []
 
         for p_idx, page in enumerate(doc):
@@ -807,6 +785,7 @@ class LocalImageRedactor:
         return {
             "input_file": input_path,
             "output_file": output_path,
+            "jurisdiction": resolved_jur,
             "format_type": "SCANNED_RASTER_PDF",
             "total_entities_redacted": len(all_targets),
             "redacted_targets": [t.model_dump() for t in all_targets]

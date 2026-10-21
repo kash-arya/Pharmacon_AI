@@ -10,7 +10,9 @@ import argparse
 import os
 import sys
 import json
-from typing import Dict, Any, List
+import time
+import concurrent.futures
+from typing import Dict, Any, List, Tuple
 
 # Ensure repository root is on sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -47,10 +49,27 @@ def process_file(input_file: str, output_file: str, vector_redactor: VectorPDFRe
     return report
 
 
+def _batch_worker(task: Tuple[str, str]) -> Dict[str, Any]:
+    """Independent worker process function for parallel multi-core batch redaction."""
+    input_file, output_file = task
+    try:
+        rep = process_file(input_file, output_file)
+        rep["status"] = "SUCCESS"
+        return rep
+    except Exception as e:
+        return {
+            "input_file": input_file,
+            "output_file": output_file,
+            "status": "ERROR",
+            "error": str(e)
+        }
+
+
 def main():
     parser = argparse.ArgumentParser(description="De-identify medical prescriptions (PDF/Image/Directory)")
     parser.add_argument("--input", "-i", required=True, help="Path to input prescription file or directory")
     parser.add_argument("--output", "-o", default=None, help="Path to output file or directory")
+    parser.add_argument("--workers", "-w", type=int, default=min(8, os.cpu_count() or 4), help="Parallel CPU workers for batch processing (default: auto)")
     parser.add_argument("--json", action="store_true", help="Print audit report as JSON")
     args = parser.parse_args()
 
@@ -64,7 +83,8 @@ def main():
     # -------------------------------------------------------------------
     if os.path.isdir(input_path):
         files_to_process: List[str] = []
-        for root, _, filenames in os.walk(input_path):
+        for root, dirs, filenames in os.walk(input_path):
+            dirs[:] = [d for d in dirs if d != "anonymized_output" and not d.startswith(".")]
             for fname in sorted(filenames):
                 ext = os.path.splitext(fname)[1].lower()
                 if ext in SUPPORTED_EXTENSIONS and not fname.endswith("_anonymized" + ext):
@@ -77,26 +97,24 @@ def main():
         out_dir = os.path.abspath(args.output) if args.output else os.path.join(input_path, "anonymized_output")
         os.makedirs(out_dir, exist_ok=True)
 
-        vec_redactor = VectorPDFRedactor()
-        img_redactor = LocalImageRedactor()
-
-        batch_reports = []
+        batch_tasks: List[Tuple[str, str]] = []
         for fpath in files_to_process:
             rel = os.path.relpath(fpath, input_path)
             base, ext = os.path.splitext(rel)
             out_file = os.path.join(out_dir, f"{base}_anonymized{ext}")
             os.makedirs(os.path.dirname(out_file), exist_ok=True)
-            try:
-                rep = process_file(fpath, out_file, vec_redactor, img_redactor)
-                rep["status"] = "SUCCESS"
-                batch_reports.append(rep)
-            except Exception as e:
-                batch_reports.append({
-                    "input_file": fpath,
-                    "output_file": out_file,
-                    "status": "ERROR",
-                    "error": str(e)
-                })
+            batch_tasks.append((fpath, out_file))
+
+        workers = max(1, min(args.workers, len(batch_tasks)))
+        t0 = time.perf_counter()
+
+        if workers > 1 and len(batch_tasks) > 1:
+            with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
+                batch_reports = list(executor.map(_batch_worker, batch_tasks))
+        else:
+            batch_reports = [_batch_worker(t) for t in batch_tasks]
+
+        elapsed_sec = time.perf_counter() - t0
 
         if args.json:
             print(json.dumps({
@@ -104,6 +122,9 @@ def main():
                 "input_directory": input_path,
                 "output_directory": out_dir,
                 "total_files": len(files_to_process),
+                "workers_used": workers,
+                "elapsed_seconds": round(elapsed_sec, 2),
+                "throughput_docs_per_sec": round(len(files_to_process) / max(0.001, elapsed_sec), 2),
                 "successful": sum(1 for r in batch_reports if r.get("status") == "SUCCESS"),
                 "reports": batch_reports
             }, indent=2))
@@ -114,7 +135,8 @@ def main():
         print("=" * 75)
         print(f"Source Directory : {input_path}")
         print(f"Target Directory : {out_dir}")
-        print(f"Total Prescriptions Processed: {len(files_to_process)}")
+        print(f"Total Files      : {len(files_to_process)} across {workers} parallel CPU workers")
+        print(f"Processing Time  : {elapsed_sec:.2f}s ({len(files_to_process)/max(0.001, elapsed_sec):.1f} docs/sec)")
         print("-" * 75)
         for rep in batch_reports:
             fname = os.path.basename(rep["input_file"])
