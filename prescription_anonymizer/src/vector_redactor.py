@@ -374,7 +374,7 @@ class VectorPDFRedactor:
 
             # 3. Header Facility & Provider Rule (above clinical_y0)
             facility_re = re.compile(
-                r"\b(?:Hospital|Clinic|Imaging|Diagnostics?|Institute|Centre|Center|Medical|Healthcare|Alliance|Department|Ambulatory|Surgery|Practice)\b",
+                r"\b(?:Hospital|Clinic|Imaging|Diagnostics?|Institute|Centre|Center|Medical|Healthcare|Alliance|Department|Ambulatory|Surgery|Practice|Optical|Optometry|Vision|Eye\s+Care|Dental|Pharmacy|Chemist|Praxis|Klinik|Apotheke)\b",
                 re.IGNORECASE
             )
             degree_re = re.compile(

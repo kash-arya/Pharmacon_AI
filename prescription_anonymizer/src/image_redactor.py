@@ -1026,9 +1026,9 @@ class LocalImageRedactor:
                 for r in page.search_for(m_str, textpage=tp):
                     add_target(r, "DISPENSING_PHARMACY", m_str, engine="inline_dispense_rule")
 
-        # Anywhere-on-page Pharmacy/Clinic/Chemist blocks
+        # Anywhere-on-page Pharmacy/Clinic/Healthcare blocks
         pharmacy_block_re = re.compile(
-            r"\b(?:[A-ZÄÖÜ][A-Za-z0-9\s',.&-]{2,40}\s+(?:Community\s+Pharmacy|Pharmacy|Chemist|Medical\s+Centre|Vision\s+Source))\b",
+            r"\b(?:[A-ZÄÖÜ][A-Za-z0-9\s',.&-]{2,40}\s+(?:Community\s+Pharmacy|Pharmacy|Chemist|Medical\s+Centre|Medical|Clinic|Hospital|Optical|Optometry|Vision|Eye\s+Care|Dental|Praxis|Klinik|Apotheke))\b",
             re.IGNORECASE
         )
         for match in pharmacy_block_re.finditer(full_text):
@@ -1063,7 +1063,7 @@ class LocalImageRedactor:
             ("ADDRESS_STREET", re.compile(
                 r"\b\d+\s+[A-Za-z0-9\-.,]+(?:\s+[A-Za-z0-9\-.,]+)*\s+(?:Street|St|Avenue|Ave|Drive|Dr|Road|Rd|Boulevard|Blvd|Court|Ct|Lane|Ln|Terrace|Colony|Market|Chowk|Way|Square|Sq|Place|Pl|Straße|Str|Weg|Platz|Allee|Gasse|Rue|Bd|Calle|Paseo|Via|Piazza)\b|"
                 r"\b(?:Lvl|Level)\s+\d+[,\s]+[A-Za-z0-9\-.,\s]+(?:Street|St|Road|Rd|Ave)\b|"
-                r"\b[A-Z][a-zA-Z\s]+,\s*(?:[A-Z]{2}|New\s+York|Oklahoma|California|Texas|Florida)\s+\d{5}(?:-\d{4})?\b|"
+                r"\b[A-Z][a-zA-Z\s]+,\s*[A-Z]{2}\s+\d{5}(?:-\d{4})?\b|"
                 r"\b[A-ZÄÖÜÁÉÍÓÚÑ][a-zäöüßáéíóúñ]+(?:straße|str\.|strasse|weg|platz|allee|gasse)\s+\d+[a-zA-Z]?\b|"
                 r"\b(?:Rue|Boulevard|Bd|Calle|Paseo|Via|Piazza)\s+(?:de\s+|del\s+|della\s+|di\s+)?[A-ZÄÖÜÁÉÍÓÚÑ][a-zäöüßáéíóúñ]+(?:[ \t]+[A-ZÄÖÜÁÉÍÓÚÑ][a-zäöüßáéíóúñ]+){0,3}(?:\s+\d+[a-zA-Z]?)?\b|"
                 r"\b(?:NSW|VIC|QLD|WA|SA|TAS|ACT|NT)\s+\d{4}\b|"
@@ -1124,7 +1124,7 @@ class LocalImageRedactor:
         # Generic Header-Zone Facility & Provider Rule (Top 35% of Document and lower-half dispensing facility)
         header_zone_y = page.rect.height * 0.35
         facility_keywords = re.compile(
-            r"\b(?:Hospital|Clinic|Imaging|Diagnostics?|Institute|Centre|Center|Medical\s+Centre|Medical|Superspecialit(?:y|ies)|Laborator(?:y|ies)|Pharmacy|Chemist|Vision\s+Source|Healthcare)\b",
+            r"\b(?:Hospital|Clinic|Imaging|Diagnostics?|Institute|Centre|Center|Medical\s+Centre|Medical|Superspecialit(?:y|ies)|Laborator(?:y|ies)|Pharmacy|Chemist|Optical|Optometry|Vision|Eye\s+Care|Dental|Healthcare|Praxis|Klinik|Apotheke)\b",
             re.IGNORECASE
         )
         provider_creds = re.compile(

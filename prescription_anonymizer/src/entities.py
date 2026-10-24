@@ -260,7 +260,7 @@ STATUTORY_ID_PATTERNS = [
     (r"\bDEA(?:\s*(?:REG|Reg|Registration)\.?)?(?:\s*(?:No|Number)\.?)?\s*[:\-=~+]?\s*([A-Z]{2}[0-9]{7})\b", "IDENTIFIER_DEA"),
     (r"\bNPI(?:\s*(?:No|Number)\.?)?\s*[:\-=~+]?\s*(\d{10})\b", "IDENTIFIER_NPI"),
     (r"\b(?:SSN|Social\s*Security)\s*[:\-=~+]?\s*(\d{3}-\d{2}-\d{4})\b", "IDENTIFIER_SSN"),
-    (r"\b(?:(?:State|CA|California|NY|TX|FL)?\s*(?:Medical\s*)?Lic(?:en[cs]e)?\.?\s*(?:No\.?)?)\s*[:\-=~+]?\s*([A-Z0-9]{2,4}[-\s]?[A-Z0-9]{4,10})\b", "IDENTIFIER_US_STATE_LIC"),
+    (r"\b(?:(?:State|[A-Z]{2})?\s*(?:Medical\s*)?Lic(?:en[cs]e)?\.?\s*(?:No\.?)?)\s*[:\-=~+]?\s*([A-Z0-9]{2,4}[-\s]?[A-Z0-9]{4,10})\b", "IDENTIFIER_US_STATE_LIC"),
     # UK Identifiers
     (r"\bNHS(?:\s*(?:No|Number)\.?)?\s*[:\-=~+]?\s*(\d{3}\s*\d{3}\s*\d{4}|\d{10})\b", "IDENTIFIER_NHS"),
     (r"\bGMC(?:\s*(?:No|Number)\.?)?\s*[:\-=~+]?\s*(\d{7})\b", "IDENTIFIER_GMC"),
@@ -283,7 +283,7 @@ ADDRESS_ANCHORS = [
     r"\b(?:Surgery\s+Address|Practice\s+Stamp|Practice\s+Address)\s*[:\-=~+]?\s*[^\n\r]+",
     r"\b(?:SEC|Sector)\s*\d+[\s,]+[A-Za-z]+",
     r"\b\d+[A-Za-z0-9\-/]?[ \t]+[A-Za-z0-9\-.,]+(?:[ \t]+[A-Za-z0-9\-.,]+){0,5}[ \t]+(?:Street|St|Avenue|Ave|Drive|Dr|Road|Rd|Boulevard|Blvd|Court|Ct|Lane|Ln|Terrace|Colony|Market|Chowk|Way|Square|Sq|Place|Pl|Straße|Str|Weg|Platz|Allee|Gasse|Rue|Boulevard|Bd|Avenue|Av|Calle|Paseo|Via|Piazza)\b",
-    r"\b[A-Z][a-zA-Z\s]+,\s*(?:[A-Z]{2}|New\s+York|Oklahoma|California|Texas|Florida)\s+\d{5}(?:-\d{4})?\b",
+    r"\b[A-Z][a-zA-Z\s]+,\s*[A-Z]{2}\s+\d{5}(?:-\d{4})?\b",
     r"\b[A-ZÄÖÜÁÉÍÓÚÑ][a-zäöüßáéíóúñ]+(?:straße|str\.|strasse|weg|platz|allee|gasse)\s+\d+[a-zA-Z]?\b",
     r"\b(?:Rue|Boulevard|Bd|Avenue|Av\.|Calle|Paseo|Via|Piazza)\s+(?:de\s+|del\s+|della\s+|di\s+)?[A-ZÄÖÜÁÉÍÓÚÑa-zäöüßáéíóúñ\s\-]+(?:\d+[a-zA-Z]?)?\b",
     r"\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b",
